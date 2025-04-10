@@ -325,9 +325,9 @@
         // Fallback questions if JSON file is not available
         function initWithFallbackQuestions() {
             questionsData = [
-                { question: "Gram boyamada mordan nedir?", answer: "Boyayı hücreye bağlayan maddedir. İodine (İyot) kullanılır." },
-                { question: "Kist ile abse arasındaki farklar nelerdir?", answer: "Kist: Oluşum yavaştır, epitel doku ile çevrilidir, sıvı berrak ve visközdür, normal doku basınç etkisiyle ezilir. Abse: İnflamasyonla hızlı oluşur, piyojenik membranla çevrilidir, içi püy doludur, normal doku lizis ile yıkılır." },
-                { question: "Mycobacterium tuberculosis'in virülans faktörleri nelerdir?", answer: "Cord faktör (Trehaloz dimikolat), Sülfatidler (Sulfatides)" },
+                { id: "q001", question: "Gram boyamada mordan nedir?", answer: "Boyayı hücreye bağlayan maddedir. İodine (İyot) kullanılır." },
+                { id: "q002", question: "Kist ile abse arasındaki farklar nelerdir?", answer: "Kist: Oluşum yavaştır, epitel doku ile çevrilidir, sıvı berrak ve visközdür, normal doku basınç etkisiyle ezilir. Abse: İnflamasyonla hızlı oluşur, piyojenik membranla çevrilidir, içi püy doludur, normal doku lizis ile yıkılır." },
+                { id: "q003", question: "Mycobacterium tuberculosis'in virülans faktörleri nelerdir?", answer: "Cord faktör (Trehaloz dimikolat), Sülfatidler (Sulfatides)" },
                 // More fallback questions can be added here
             ];
         }
@@ -375,6 +375,15 @@
         const notificationText = document.getElementById('notification-text');
         const loadingOverlay = document.getElementById('loading-overlay');
 
+        // Helper function to get question ID consistently
+        function getQuestionId(questionIndex) {
+            if (questionIndex < 0 || questionIndex >= questionsData.length) {
+                return null;
+            }
+            const question = questionsData[questionIndex];
+            return question.id || questionIndex.toString();
+        }
+
         // Initialize the app
         function initApp() {
             loadState();
@@ -383,6 +392,9 @@
                 // First time initialization or questions count changed
                 state.questionsOrder = Array.from({ length: questionsData.length }, (_, i) => i);
             }
+
+            // Ensure currentIndex is valid
+            validateCurrentIndex();
             
             updateUI();
             setTimeout(() => {
@@ -396,27 +408,54 @@
             setTimeout(showRandomMessage, 10000);
         }
 
+        // Validate and correct currentIndex if needed
+        function validateCurrentIndex() {
+            if (questionsData.length === 0) {
+                state.currentIndex = 0;
+                return;
+            }
+            
+            if (state.currentIndex < 0) {
+                state.currentIndex = 0;
+            } else if (state.currentIndex >= questionsData.length) {
+                state.currentIndex = questionsData.length - 1;
+            }
+        }
+
         // Load state from localStorage
         function loadState() {
-            const savedState = localStorage.getItem('medicalQuizState');
-            if (savedState) {
-                try {
+            try {
+                const savedState = localStorage.getItem('medicalQuizState');
+                if (savedState) {
                     const parsedState = JSON.parse(savedState);
                     state = { ...state, ...parsedState };
-                } catch (e) {
-                    console.error('Failed to parse saved state:', e);
                 }
+            } catch (e) {
+                console.error('Failed to parse saved state:', e);
+                // Reset to default state on error
+                state = {
+                    currentIndex: 0,
+                    knownQuestions: {},
+                    reviewQuestions: {},
+                    questionsOrder: [],
+                    isCardFlipped: false
+                };
             }
         }
 
         // Save state to localStorage
         function saveState() {
-            localStorage.setItem('medicalQuizState', JSON.stringify({
-                currentIndex: state.currentIndex,
-                knownQuestions: state.knownQuestions,
-                reviewQuestions: state.reviewQuestions,
-                questionsOrder: state.questionsOrder
-            }));
+            try {
+                localStorage.setItem('medicalQuizState', JSON.stringify({
+                    currentIndex: state.currentIndex,
+                    knownQuestions: state.knownQuestions,
+                    reviewQuestions: state.reviewQuestions,
+                    questionsOrder: state.questionsOrder
+                }));
+            } catch (e) {
+                console.error('Failed to save state:', e);
+                showNotification("Hata: İlerleme kaydedilemedi.", 3000);
+            }
         }
 
         // Update UI elements based on current state
@@ -428,12 +467,22 @@
                 return;
             }
             
+            validateCurrentIndex();
+            
             const currentQuestionIndex = state.questionsOrder[state.currentIndex];
+            // Check if index is valid
+            if (currentQuestionIndex === undefined || !questionsData[currentQuestionIndex]) {
+                console.error("Invalid question index:", currentQuestionIndex);
+                state.currentIndex = 0;
+                updateUI();
+                return;
+            }
+            
             const currentQuestion = questionsData[currentQuestionIndex];
             
             // Update question and answer text
-            questionText.textContent = currentQuestion.question;
-            answerText.textContent = currentQuestion.answer;
+            questionText.textContent = currentQuestion.question || "Soru bulunamadı";
+            answerText.textContent = currentQuestion.answer || "Cevap bulunamadı";
             
             // Reset card flip state
             if (state.isCardFlipped) {
@@ -445,7 +494,7 @@
             // Update progress indicators
             const knownTotal = Object.keys(state.knownQuestions).length;
             const reviewTotal = Object.keys(state.reviewQuestions).length;
-            const progress = Math.round((knownTotal / questionsData.length) * 100);
+            const progress = questionsData.length > 0 ? Math.round((knownTotal / questionsData.length) * 100) : 0;
             
             // Improve progress bar display for small percentages
             if (knownTotal > 0 && progress < 2) {
@@ -470,17 +519,21 @@
             nextBtnMobile.disabled = isLastQuestion;
             
             // Highlight button if current question is marked
-            const currentId = currentQuestionIndex.toString();
+            const currentId = getQuestionId(currentQuestionIndex);
             knownBtn.classList.remove('ring-4', 'ring-green-200');
             reviewBtn.classList.remove('ring-4', 'ring-red-200');
             
-            if (state.knownQuestions[currentId]) {
+            if (currentId && state.knownQuestions[currentId]) {
                 knownBtn.classList.add('ring-4', 'ring-green-200');
-            } else if (state.reviewQuestions[currentId]) {
+            } else if (currentId && state.reviewQuestions[currentId]) {
                 reviewBtn.classList.add('ring-4', 'ring-red-200');
             }
             
-            saveState();
+            try {
+                saveState();
+            } catch (e) {
+                console.error('Failed to save state:', e);
+            }
         }
 
         // Flip the card to show answer
@@ -513,7 +566,18 @@
 
         // Mark current question as known
         function markAsKnown() {
-            const currentId = state.questionsOrder[state.currentIndex].toString();
+            const currentQuestionIndex = state.questionsOrder[state.currentIndex];
+            if (currentQuestionIndex === undefined || currentQuestionIndex < 0 || 
+                currentQuestionIndex >= questionsData.length) {
+                console.error("Invalid question index for marking as known");
+                return;
+            }
+            
+            const currentId = getQuestionId(currentQuestionIndex);
+            if (!currentId) {
+                console.error("Cannot get valid ID for current question");
+                return;
+            }
             
             // If already marked as review, remove that mark
             if (state.reviewQuestions[currentId]) {
@@ -549,7 +613,18 @@
 
         // Mark current question for review
         function markForReview() {
-            const currentId = state.questionsOrder[state.currentIndex].toString();
+            const currentQuestionIndex = state.questionsOrder[state.currentIndex];
+            if (currentQuestionIndex === undefined || currentQuestionIndex < 0 || 
+                currentQuestionIndex >= questionsData.length) {
+                console.error("Invalid question index for marking for review");
+                return;
+            }
+            
+            const currentId = getQuestionId(currentQuestionIndex);
+            if (!currentId) {
+                console.error("Cannot get valid ID for current question");
+                return;
+            }
             
             // If already marked as known, remove that mark
             if (state.knownQuestions[currentId]) {
@@ -575,6 +650,11 @@
 
         // Shuffle the questions
         function shuffleQuestions() {
+            if (questionsData.length <= 1) {
+                showNotification("Karıştırmak için en az 2 soru gerekiyor.");
+                return;
+            }
+            
             state.questionsOrder = shuffleArray([...state.questionsOrder]);
             state.currentIndex = 0;
             showNotification("Sorular karıştırıldı!");
@@ -594,6 +674,8 @@
 
         // Show notification message
         function showNotification(message, duration = 2000) {
+            if (!message) return;
+            
             notificationText.textContent = message;
             notification.classList.add('show');
             
@@ -636,6 +718,10 @@
 
         // Helper function to shuffle an array
         function shuffleArray(array) {
+            if (!Array.isArray(array) || array.length === 0) {
+                return array;
+            }
+            
             for (let i = array.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
                 [array[i], array[j]] = [array[j], array[i]];
@@ -679,6 +765,13 @@
             else if (e.key === 'k') markAsKnown();
             else if (e.key === 'r') markForReview();
         });
+
+        // Handle window errors
+        window.onerror = function(message, source, lineno, colno, error) {
+            console.error("Error caught:", message, "at", source, ":", lineno, ":", colno);
+            showNotification("Bir hata oluştu: " + message, 5000);
+            return true; // Prevents default error handling
+        };
 
         // Start loading questions
         loadQuestions();
