@@ -1,0 +1,1802 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DUS Sınav Hazırlık - Bebecin edition ♥</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#FF69B4',
+                        secondary: '#FFB6C1',
+                        accent: '#FFC0CB',
+                        dark: '#333333',
+                        light: '#FFF0F5'
+                    },
+                    keyframes: {
+                        heartbeat: {
+                            '0%, 100%': { transform: 'scale(1)' },
+                            '50%': { transform: 'scale(1.1)' },
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        }
+                    },
+                    animation: {
+                        heartbeat: 'heartbeat 1.5s ease-in-out infinite',
+                        float: 'float 3s ease-in-out infinite',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #FFF0F5;
+            min-height: 100vh;
+        }
+        
+        .card {
+            perspective: 1000px;
+            transition: transform 0.6s;
+        }
+        
+        .card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.8s;
+            transform-style: preserve-3d;
+        }
+        
+        .card.flipped .card-inner {
+            transform: rotateY(180deg);
+        }
+        
+        .card-front, .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 1rem;
+            padding: 2rem;
+            overflow-y: auto;
+        }
+        
+        .card-front {
+            background: linear-gradient(135deg, #FF69B4, #FFB6C1);
+            color: white;
+        }
+        
+        .card-back {
+            background: white;
+            color: #333;
+            transform: rotateY(180deg);
+            border: 2px solid #FF69B4;
+        }
+        
+        .heart-checkbox {
+            clip-path: path('M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z');
+            transition: all 0.3s;
+        }
+        
+        .heart-checkbox:checked {
+            background-color: #FF69B4;
+        }
+        
+        /* Confetti animation */
+        @keyframes confetti-fall {
+            0% { transform: translateY(-100vh) rotate(0deg); }
+            100% { transform: translateY(100vh) rotate(720deg); }
+        }
+        
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            z-index: 1000;
+            animation: confetti-fall 5s linear forwards;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            max-width: 300px;
+            z-index: 9999;
+            transform: translateX(100%);
+            transition: transform 0.4s ease-out;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        /* Custom loader */
+        .heart-loader {
+            display: inline-block;
+            position: relative;
+            width: 80px;
+            height: 80px;
+        }
+        
+        .heart-loader:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23FF69B4'%3E%3Cpath d='M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z'/%3E%3C/svg%3E") no-repeat center center;
+            animation: heartbeat 1.2s infinite;
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <!-- Main container -->
+    <div class="container mx-auto px-4 py-6 max-w-4xl">
+        <!-- Header -->
+        <header class="mb-6 text-center animate__animated animate__fadeIn">
+            <h1 class="text-4xl font-bold text-primary mb-1">DUS Hazırlık Kartları - Bebecin Edition</h1>
+            <p class="text-gray-600 italic">Seni seviyorum, başaracağına inanıyorum ♥</p>
+        </header>
+        
+        <!-- Statistics Display -->
+        <div class="stats-container mb-5 bg-white rounded-lg shadow-md p-3 animate__animated animate__fadeIn animate__delay-1s">
+            <div class="flex flex-wrap justify-around">
+                <div class="stat-item text-center p-2">
+                    <p class="text-sm text-gray-500">İlerleme</p>
+                    <div class="progress-container relative h-4 bg-gray-200 rounded-full mt-1 w-60">
+                        <div id="progress-bar" class="absolute top-0 left-0 h-full bg-primary rounded-full" style="width: 0%"></div>
+                    </div>
+                    <p id="progress-text" class="text-sm mt-1">0/0 soru</p>
+                </div>
+                
+                <div class="stat-item text-center p-2">
+                    <p class="text-sm text-gray-500">Doğru Bilinen</p>
+                    <p id="known-count" class="text-xl font-bold text-green-500">0</p>
+                </div>
+                
+                <div class="stat-item text-center p-2">
+                    <p class="text-sm text-gray-500">Tekrar Et</p>
+                    <p id="review-count" class="text-xl font-bold text-red-500">0</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Navigation Controls -->
+        <div class="controls mb-4 flex flex-wrap justify-between items-center bg-white rounded-lg shadow-md p-3 animate__animated animate__fadeIn animate__delay-1s">
+            <div class="buttons-left flex space-x-2">
+                <button id="prev-btn" class="px-4 py-2 bg-secondary text-white rounded-lg hover:bg-primary transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
+                    <span>← Önceki</span>
+                </button>
+                <button id="next-btn" class="px-4 py-2 bg-secondary text-white rounded-lg hover:bg-primary transition duration-300">
+                    <span>Sonraki →</span>
+                </button>
+            </div>
+            
+            <div class="buttons-right flex space-x-2">
+                <button id="shuffle-btn" class="px-4 py-2 bg-accent text-white rounded-lg hover:bg-pink-400 transition duration-300">
+                    <span>Karıştır</span>
+                </button>
+                <button id="reset-btn" class="px-4 py-2 bg-red-400 text-white rounded-lg hover:bg-red-500 transition duration-300">
+                    <span>Sıfırla</span>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Card Container -->
+        <div class="card-container mb-4 h-80 animate__animated animate__zoomIn">
+            <div id="card" class="card w-full h-full shadow-xl">
+                <div class="card-inner h-full">
+                    <div class="card-front flex flex-col justify-center items-center">
+                        <h2 class="text-2xl font-bold mb-4">Soru</h2>
+                        <p id="question-text" class="text-xl text-center leading-relaxed px-4">Soruları yükleniyor...</p>
+                    </div>
+                    <div class="card-back flex flex-col justify-center items-center">
+                        <h2 class="text-2xl font-bold mb-4 text-primary">Cevap</h2>
+                        <p id="answer-text" class="text-xl text-center leading-relaxed px-4">Cevap yükleniyor...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Rating and Flip Container -->
+        <div class="action-container bg-white rounded-lg shadow-md p-4 mb-4 animate__animated animate__fadeIn animate__delay-2s">
+            <div class="flex flex-col md:flex-row justify-center items-center space-y-4 md:space-y-0 md:space-x-4">
+                <button id="flip-btn" class="w-full md:w-auto px-5 py-3 bg-primary text-white rounded-lg hover:bg-pink-600 transition duration-300 text-lg font-medium">
+                    <span>Cevabı Göster</span>
+                </button>
+                
+                <div class="flex justify-center space-x-4 w-full md:w-auto">
+                    <button id="known-btn" class="w-full px-5 py-3 bg-green-400 text-white rounded-lg hover:bg-green-500 transition duration-300 text-lg font-medium">
+                        <span>Biliyorum</span>
+                    </button>
+                    <button id="review-btn" class="w-full px-5 py-3 bg-red-400 text-white rounded-lg hover:bg-red-500 transition duration-300 text-lg font-medium">
+                        <span>Tekrar Et</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <footer class="text-center text-gray-500 text-sm mt-4 animate__animated animate__fadeIn animate__delay-2s">
+            <p>Günmaru, 2025 ♥</p>
+        </footer>
+    </div>
+    
+    <!-- Notification container -->
+    <div id="notification" class="notification bg-white shadow-lg rounded-lg p-4 border-l-4 border-primary">
+        <div class="flex">
+            <div class="flex-shrink-0">
+                <svg class="h-5 w-5 text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </div>
+            <div class="ml-3">
+                <p id="notification-text" class="text-sm text-gray-700"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading overlay -->
+    <div id="loading-overlay" class="fixed inset-0 bg-white bg-opacity-80 flex justify-center items-center z-50">
+        <div class="text-center">
+            <div class="heart-loader mb-4"></div>
+            <p class="text-primary font-medium">Sınav hazırlık kartları yükleniyor...</p>
+        </div>
+    </div>
+
+    <script>
+        // Questions and answers data
+        // This array can be populated with your questions and answers
+        const questionsData = [
+  {
+    "question":"Gram pozitif bakterilerde lizozime duyarlılığı sağlayan yapı nedir?",
+    "answer":"Kalın peptidoglikan tabaka."
+  },
+  {
+    "question":"Prokaryotlarda DNA nerededir ve nasıl bir yapıya sahiptir?",
+    "answer":"Nükleoid bölgesindedir, çift iplikli sirküler yapıdadır."
+  },
+  {
+    "question":"Sitoplazmik membranın görevleri nelerdir?",
+    "answer":"Enerji üretimi, madde geçişi, enzim ve toksin salgısı gibi birçok görevi vardır."
+  },
+  {
+    "question":"Flagellanın bakterideki görevi nedir?",
+    "answer":"Hareketi sağlar."
+  },
+  {
+    "question":"Kapsül hangi işlevleri görür?",
+    "answer":"Fagositoza karşı korur, antijeniktir, tiplendirmede kullanılır."
+  },
+  {
+    "question":"Fimbria ne işe yarar?",
+    "answer":"Tutunma ve adezyon görevini görür."
+  },
+  {
+    "question":"Gram boyamada gram negatif bakteriler hangi renkte görülür?",
+    "answer":"Pembe."
+  },
+  {
+    "question":"Gram boyama basamakları nelerdir?",
+    "answer":"Kristal viyole, lugol, alkol, sulu fuksin."
+  },
+  {
+    "question":"Bakteride spor ne işe yarar?",
+    "answer":"Zor koşullarda hayatta kalmayı sağlar."
+  },
+  {
+    "question":"Spor oluşturan gram pozitif basiller hangileridir?",
+    "answer":"Bacillus ve Clostridium."
+  },
+  {
+    "question":"Beta laktam antibiyotikler nereye etki eder?",
+    "answer":"Peptidoglikan sentezini inhibe ederler."
+  },
+  {
+    "question":"Protein sentezini 30S alt birimden inhibe eden antibiyotikler hangileridir?",
+    "answer":"Aminoglikozitler ve tetrasiklinler."
+  },
+  {
+    "question":"MRSA tedavisinde hangi antibiyotikler kullanılır?",
+    "answer":"Vankomisin, linezolid, daptomisin."
+  },
+  {
+    "question":"Difteri toksini nasıl çalışır?",
+    "answer":"EF-2’yi inhibe ederek protein sentezini durdurur."
+  },
+  {
+    "question":"Botulinum toksini ne yapar?",
+    "answer":"Ach salınımını inhibe eder, flask paralizi yapar."
+  },
+  {
+    "question":"Yenidoğanda en sık menenjit etkeni nedir?",
+    "answer":"Streptococcus agalactiae."
+  },
+  {
+    "question":"Haşlanmış deri sendromu hangi bakterinin toksini ile oluşur?",
+    "answer":"Staphylococcus aureus – Eksfoliatif toksin."
+  },
+  {
+    "question":"Boğmaca tanısında hangi örnek alınmalıdır?",
+    "answer":"Nazofaringeal aspirat."
+  },
+  {
+    "question":"EHEC enfeksiyonunun en ciddi komplikasyonu nedir?",
+    "answer":"Hemolitik Üremik Sendrom (HÜS)."
+  },
+  {
+    "question":"Osteomyelitin en sık etkeni nedir?",
+    "answer":"Staphylococcus aureus."
+  },
+  {
+    "question":"BCYE agar hangi bakteriler için kullanılır?",
+    "answer":"Legionella, Nocardia, Francisella."
+  },
+  {
+    "question":"Kapsül hangi boyama yöntemiyle gösterilir?",
+    "answer":"Çini mürekkebi veya Nigrosin ile negatif boyama."
+  },
+  {
+    "question":"Mycobacterium’lar hangi yöntemle boyanır?",
+    "answer":"Aside dirençli boyama."
+  },
+  {
+    "question":"Otoklavda kullanılan biyolojik indikatör nedir?",
+    "answer":"Bacillus stearothermophilus."
+  },
+  {
+    "question":"HEPA filtreler ne için kullanılır?",
+    "answer":"Havayı sterilize etmek için, özellikle Aspergillus'tan korunmada."
+  },
+  {
+    "question":"Plazmid ile taşınan toksin örnekleri nelerdir?",
+    "answer":"Tetanoz, Botulinum, ETEC toksini."
+  },
+  {
+    "question":"Konjugasyon nedir?",
+    "answer":"Canlı bakteriler arasında F pilusu aracılığıyla genetik materyal aktarımıdır."
+  },
+  {
+    "question":"Vajinada baskın flora elemanı nedir?",
+    "answer":"Laktobasiller."
+  },
+  {
+    "question":"Kalın bağırsakta en çok bulunan flora bakterisi hangisidir?",
+    "answer":"Bacteroides fragilis."
+  },
+  {
+    "question":"Boğmaca tanısında hangi örnek alınmalıdır?",
+    "answer":"Nazofaringeal aspirat."
+  },
+  {
+    "question":"Fimbria ne işe yarar?",
+    "answer":"Tutunma ve adezyon görevini görür."
+  },
+  {
+    "question":"EHEC enfeksiyonunun en ciddi komplikasyonu nedir?",
+    "answer":"Hemolitik Üremik Sendrom (HÜS)."
+  },
+  {
+    "question":"Kalın bağırsakta en çok bulunan flora bakterisi hangisidir?",
+    "answer":"Bacteroides fragilis."
+  },
+  {
+    "question":"Gram pozitif bakterilerde lizozime duyarlılığı sağlayan yapı nedir?",
+    "answer":"Kalın peptidoglikan tabaka."
+  },
+  {
+    "question":"Osteomyelitin en sık etkeni nedir?",
+    "answer":"Staphylococcus aureus."
+  },
+  {
+    "question":"Mycobacterium’lar hangi yöntemle boyanır?",
+    "answer":"Aside dirençli boyama."
+  },
+  {
+    "question":"EHEC enfeksiyonunun en ciddi komplikasyonu nedir?",
+    "answer":"Hemolitik Üremik Sendrom (HÜS)."
+  },
+  {
+    "question":"Gram boyama basamakları nelerdir?",
+    "answer":"Kristal viyole, lugol, alkol, sulu fuksin."
+  },
+  {
+    "question":"Haşlanmış deri sendromu hangi bakterinin toksini ile oluşur?",
+    "answer":"Staphylococcus aureus – Eksfoliatif toksin."
+  },
+  {
+    "question":"EHEC enfeksiyonunun en ciddi komplikasyonu nedir?",
+    "answer":"Hemolitik Üremik Sendrom (HÜS)."
+  },
+  {
+    "question":"Spor oluşturan gram pozitif basiller hangileridir?",
+    "answer":"Bacillus ve Clostridium."
+  },
+  {
+    "question":"Haşlanmış deri sendromu hangi bakterinin toksini ile oluşur?",
+    "answer":"Staphylococcus aureus – Eksfoliatif toksin."
+  },
+  {
+    "question":"Otoklavda kullanılan biyolojik indikatör nedir?",
+    "answer":"Bacillus stearothermophilus."
+  },
+  {
+    "question":"Haşlanmış deri sendromu hangi bakterinin toksini ile oluşur?",
+    "answer":"Staphylococcus aureus – Eksfoliatif toksin."
+  },
+  {
+    "question":"Kapsül hangi boyama yöntemiyle gösterilir?",
+    "answer":"Çini mürekkebi veya Nigrosin ile negatif boyama."
+  },
+  {
+    "question":"Haşlanmış deri sendromu hangi bakterinin toksini ile oluşur?",
+    "answer":"Staphylococcus aureus – Eksfoliatif toksin."
+  },
+  {
+    "question":"Haşlanmış deri sendromu hangi bakterinin toksini ile oluşur?",
+    "answer":"Staphylococcus aureus – Eksfoliatif toksin."
+  },
+  {
+    "question":"Difteri toksini nasıl çalışır?",
+    "answer":"EF-2’yi inhibe ederek protein sentezini durdurur."
+  },
+  {
+    "question":"Spor oluşturan gram pozitif basiller hangileridir?",
+    "answer":"Bacillus ve Clostridium."
+  },
+  {
+    "question":"BCYE agar hangi bakteriler için kullanılır?",
+    "answer":"Legionella, Nocardia, Francisella."
+  },
+  {
+    "question":"Yenidoğanda en sık menenjit etkeni nedir?",
+    "answer":"Streptococcus agalactiae."
+  },
+  {
+    "question":"EHEC enfeksiyonunun en ciddi komplikasyonu nedir?",
+    "answer":"Hemolitik Üremik Sendrom (HÜS)."
+  },
+  {
+    "question":"EHEC enfeksiyonunun en ciddi komplikasyonu nedir?",
+    "answer":"Hemolitik Üremik Sendrom (HÜS)."
+  },
+  {
+    "question":"Haşlanmış deri sendromu hangi bakterinin toksini ile oluşur?",
+    "answer":"Staphylococcus aureus – Eksfoliatif toksin."
+  },
+  {
+    "question":"Vajinada baskın flora elemanı nedir?",
+    "answer":"Laktobasiller."
+  },
+  {
+    "question":"Gram pozitif bakterilerde lizozime duyarlılığı sağlayan yapı nedir?",
+    "answer":"Kalın peptidoglikan tabaka."
+  },
+  {
+    "question":"Plazmid ile taşınan toksin örnekleri nelerdir?",
+    "answer":"Tetanoz, Botulinum, ETEC toksini."
+  },
+  {
+    "question":"Haşlanmış deri sendromu hangi bakterinin toksini ile oluşur?",
+    "answer":"Staphylococcus aureus – Eksfoliatif toksin."
+  },
+  {
+    "question":"Gram pozitif bakterilerde lizozime duyarlılığı sağlayan yapı nedir?",
+    "answer":"Kalın peptidoglikan tabaka."
+  },
+  {
+    "question":"Difteri toksini nasıl çalışır?",
+    "answer":"EF-2’yi inhibe ederek protein sentezini durdurur."
+  },
+  {
+    "question":"Gram boyamada gram negatif bakteriler hangi renkte görülür?",
+    "answer":"Pembe."
+  },
+  {
+    "question":"Gram pozitif bakterilerde lizozime duyarlılığı sağlayan yapı nedir?",
+    "answer":"Kalın peptidoglikan tabaka."
+  },
+  {
+    "question":"Kalın bağırsakta en çok bulunan flora bakterisi hangisidir?",
+    "answer":"Bacteroides fragilis."
+  },
+  {
+    "question":"Gram boyama basamakları nelerdir?",
+    "answer":"Kristal viyole, lugol, alkol, sulu fuksin."
+  },
+  {
+    "question":"Otoklavda kullanılan biyolojik indikatör nedir?",
+    "answer":"Bacillus stearothermophilus."
+  },
+  {
+    "question":"Fimbria ne işe yarar?",
+    "answer":"Tutunma ve adezyon görevini görür."
+  },
+  {
+    "question":"EHEC enfeksiyonunun en ciddi komplikasyonu nedir?",
+    "answer":"Hemolitik Üremik Sendrom (HÜS)."
+  },
+  {
+    "question":"EHEC enfeksiyonunun en ciddi komplikasyonu nedir?",
+    "answer":"Hemolitik Üremik Sendrom (HÜS)."
+  },
+  {
+    "question":"Gram boyama basamakları nelerdir?",
+    "answer":"Kristal viyole, lugol, alkol, sulu fuksin."
+  },
+  {
+    "question":"Kalın bağırsakta en çok bulunan flora bakterisi hangisidir?",
+    "answer":"Bacteroides fragilis."
+  },
+  {
+    "question":"Difteri toksini nasıl çalışır?",
+    "answer":"EF-2’yi inhibe ederek protein sentezini durdurur."
+  },
+  {
+    "question":"Haşlanmış deri sendromu hangi bakterinin toksini ile oluşur?",
+    "answer":"Staphylococcus aureus – Eksfoliatif toksin."
+  },
+  {
+    "question":"Spor oluşturan gram pozitif basiller hangileridir?",
+    "answer":"Bacillus ve Clostridium."
+  },
+  {
+    "question":"Spor oluşturan gram pozitif basiller hangileridir?",
+    "answer":"Bacillus ve Clostridium."
+  },
+  {
+    "question":"MRSA tedavisinde hangi antibiyotikler kullanılır?",
+    "answer":"Vankomisin, linezolid, daptomisin."
+  },
+  {
+    "question":"BCYE agar hangi bakteriler için kullanılır?",
+    "answer":"Legionella, Nocardia, Francisella."
+  },
+  {
+    "question":"Yenidoğanda en sık menenjit etkeni nedir?",
+    "answer":"Streptococcus agalactiae."
+  },
+  {
+    "question":"Konjugasyon nedir?",
+    "answer":"Canlı bakteriler arasında F pilusu aracılığıyla genetik materyal aktarımıdır."
+  },
+  {
+    "question":"Fimbria ne işe yarar?",
+    "answer":"Tutunma ve adezyon görevini görür."
+  },
+  {
+    "question":"Kapsül hangi işlevleri görür?",
+    "answer":"Fagositoza karşı korur, antijeniktir, tiplendirmede kullanılır."
+  },
+  {
+    "question":"Beta laktam antibiyotikler nereye etki eder?",
+    "answer":"Peptidoglikan sentezini inhibe ederler."
+  },
+  {
+    "question":"EHEC enfeksiyonunun en ciddi komplikasyonu nedir?",
+    "answer":"Hemolitik Üremik Sendrom (HÜS)."
+  },
+  {
+    "question":"EHEC enfeksiyonunun en ciddi komplikasyonu nedir?",
+    "answer":"Hemolitik Üremik Sendrom (HÜS)."
+  },
+  {
+    "question":"Kalın bağırsakta en çok bulunan flora bakterisi hangisidir?",
+    "answer":"Bacteroides fragilis."
+  },
+  {
+    "question":"Mycobacterium’lar hangi yöntemle boyanır?",
+    "answer":"Aside dirençli boyama."
+  },
+  {
+    "question":"EHEC enfeksiyonunun en ciddi komplikasyonu nedir?",
+    "answer":"Hemolitik Üremik Sendrom (HÜS)."
+  },
+  {
+    "question":"Kalın bağırsakta en çok bulunan flora bakterisi hangisidir?",
+    "answer":"Bacteroides fragilis."
+  },
+  {
+    "question":"EHEC enfeksiyonunun en ciddi komplikasyonu nedir?",
+    "answer":"Hemolitik Üremik Sendrom (HÜS)."
+  },
+  {
+    "question":"Yenidoğanda en sık menenjit etkeni nedir?",
+    "answer":"Streptococcus agalactiae."
+  },
+  {
+    "question":"Konjugasyon nedir?",
+    "answer":"Canlı bakteriler arasında F pilusu aracılığıyla genetik materyal aktarımıdır."
+  },
+  {
+    "question":"Bakteride spor ne işe yarar?",
+    "answer":"Zor koşullarda hayatta kalmayı sağlar."
+  },
+  {
+    "question":"Haşlanmış deri sendromu hangi bakterinin toksini ile oluşur?",
+    "answer":"Staphylococcus aureus – Eksfoliatif toksin."
+  },
+  {
+    "question":"Kalın bağırsakta en çok bulunan flora bakterisi hangisidir?",
+    "answer":"Bacteroides fragilis."
+  },
+  {
+    "question":"Otoklavda kullanılan biyolojik indikatör nedir?",
+    "answer":"Bacillus stearothermophilus."
+  },
+  {
+    "question":"Gram boyama basamakları nelerdir?",
+    "answer":"Kristal viyole, lugol, alkol, sulu fuksin."
+  },
+  {
+    "question":"Bakteride spor ne işe yarar?",
+    "answer":"Zor koşullarda hayatta kalmayı sağlar."
+  },
+  {
+    "question":"Mycobacterium’lar hangi yöntemle boyanır?",
+    "answer":"Aside dirençli boyama."
+  },
+  {
+    "question":"Osteomyelitin en sık etkeni nedir?",
+    "answer":"Staphylococcus aureus."
+  },
+  {
+    "question":"Bakteride spor ne işe yarar?",
+    "answer":"Zor koşullarda hayatta kalmayı sağlar."
+  },
+  {
+    "question":"EHEC enfeksiyonunun en ciddi komplikasyonu nedir?",
+    "answer":"Hemolitik Üremik Sendrom (HÜS)."
+  },
+  {
+    "question":"Gram pozitif bakterilerde lizozime duyarlılığı sağlayan yapı nedir?",
+    "answer":"Kalın peptidoglikan tabaka."
+  },
+  {
+    "question":"Yenidoğanda en sık menenjit etkeni nedir?",
+    "answer":"Streptococcus agalactiae."
+  },
+  {
+    "question":"Otoklavda kullanılan biyolojik indikatör nedir?",
+    "answer":"Bacillus stearothermophilus."
+  },
+  {
+    "question":"Fimbria ne işe yarar?",
+    "answer":"Tutunma ve adezyon görevini görür."
+  },
+  {
+    "question":"Konjugasyon nedir?",
+    "answer":"Canlı bakteriler arasında F pilusu aracılığıyla genetik materyal aktarımıdır."
+  },
+  {
+    "question":"Otoklavda kullanılan biyolojik indikatör nedir?",
+    "answer":"Bacillus stearothermophilus."
+  },
+  {
+    "question":"Otoklavda kullanılan biyolojik indikatör nedir?",
+    "answer":"Bacillus stearothermophilus."
+  },
+  {
+    "question":"Gram pozitif bakterilerde lizozime duyarlılığı sağlayan yapı nedir?",
+    "answer":"Kalın peptidoglikan tabaka."
+  },
+  {
+    "question":"Otoklavda kullanılan biyolojik indikatör nedir?",
+    "answer":"Bacillus stearothermophilus."
+  },
+  {
+    "question":"Gram boyamada gram negatif bakteriler hangi renkte görülür?",
+    "answer":"Pembe."
+  },
+  {
+    "question":"Otoklavda kullanılan biyolojik indikatör nedir?",
+    "answer":"Bacillus stearothermophilus."
+  },
+  {
+    "question":"Osteomyelitin en sık etkeni nedir?",
+    "answer":"Staphylococcus aureus."
+  },
+  {
+    "question":"Bakteride spor ne işe yarar?",
+    "answer":"Zor koşullarda hayatta kalmayı sağlar."
+  },
+  {
+    "question":"Protein sentezini 30S alt birimden inhibe eden antibiyotikler hangileridir?",
+    "answer":"Aminoglikozitler ve tetrasiklinler."
+  },
+  {
+    "question":"Difteri toksini nasıl çalışır?",
+    "answer":"EF-2’yi inhibe ederek protein sentezini durdurur."
+  },
+  {
+    "question":"Otoklavda kullanılan biyolojik indikatör nedir?",
+    "answer":"Bacillus stearothermophilus."
+  },
+  {
+    "question":"Haşlanmış deri sendromu hangi bakterinin toksini ile oluşur?",
+    "answer":"Staphylococcus aureus – Eksfoliatif toksin."
+  },
+  {
+    "question":"Spor oluşturan gram pozitif basiller hangileridir?",
+    "answer":"Bacillus ve Clostridium."
+  },
+  {
+    "question":"EHEC enfeksiyonunun en ciddi komplikasyonu nedir?",
+    "answer":"Hemolitik Üremik Sendrom (HÜS)."
+  },
+  {
+    "question":"EHEC enfeksiyonunun en ciddi komplikasyonu nedir?",
+    "answer":"Hemolitik Üremik Sendrom (HÜS)."
+  },
+  {
+    "question":"Fimbria ne işe yarar?",
+    "answer":"Tutunma ve adezyon görevini görür."
+  },
+  {
+    "question":"Bakteride spor ne işe yarar?",
+    "answer":"Zor koşullarda hayatta kalmayı sağlar."
+  },
+  {
+    "question":"Protein sentezini 30S alt birimden inhibe eden antibiyotikler hangileridir?",
+    "answer":"Aminoglikozitler ve tetrasiklinler."
+  },
+  {
+    "question":"Mycobacterium’lar hangi yöntemle boyanır?",
+    "answer":"Aside dirençli boyama."
+  },
+  {
+    "question":"Haşlanmış deri sendromu hangi bakterinin toksini ile oluşur?",
+    "answer":"Staphylococcus aureus – Eksfoliatif toksin."
+  },
+  {
+    "question":"Mycobacterium’lar hangi yöntemle boyanır?",
+    "answer":"Aside dirençli boyama."
+  },
+  {
+    "question":"Kapsül hangi işlevleri görür?",
+    "answer":"Fagositoza karşı korur, antijeniktir, tiplendirmede kullanılır."
+  },
+  {
+    "question":"Yenidoğanda en sık menenjit etkeni nedir?",
+    "answer":"Streptococcus agalactiae."
+  },
+  {
+    "question":"Otoklavda kullanılan biyolojik indikatör nedir?",
+    "answer":"Bacillus stearothermophilus."
+  },
+  {
+    "question":"Mycobacterium’lar hangi yöntemle boyanır?",
+    "answer":"Aside dirençli boyama."
+  },
+  {
+    "question":"Spor oluşturan gram pozitif basiller hangileridir?",
+    "answer":"Bacillus ve Clostridium."
+  },
+  {
+    "question":"EHEC enfeksiyonunun en ciddi komplikasyonu nedir?",
+    "answer":"Hemolitik Üremik Sendrom (HÜS)."
+  },
+  {
+    "question":"Bakteride spor ne işe yarar?",
+    "answer":"Zor koşullarda hayatta kalmayı sağlar."
+  },
+  {
+    "question":"Protein sentezini 30S alt birimden inhibe eden antibiyotikler hangileridir?",
+    "answer":"Aminoglikozitler ve tetrasiklinler."
+  },
+  {
+    "question":"Fimbria ne işe yarar?",
+    "answer":"Tutunma ve adezyon görevini görür."
+  },
+  {
+    "question":"Otoklavda kullanılan biyolojik indikatör nedir?",
+    "answer":"Bacillus stearothermophilus."
+  },
+  {
+    "question":"Osteomyelitin en sık etkeni nedir?",
+    "answer":"Staphylococcus aureus."
+  },
+  {
+    "question":"Gram boyama basamakları nelerdir?",
+    "answer":"Kristal viyole, lugol, alkol, sulu fuksin."
+  },
+  {
+    "question":"Haşlanmış deri sendromu hangi bakterinin toksini ile oluşur?",
+    "answer":"Staphylococcus aureus – Eksfoliatif toksin."
+  },
+  {
+    "question":"EHEC enfeksiyonunun en ciddi komplikasyonu nedir?",
+    "answer":"Hemolitik Üremik Sendrom (HÜS)."
+  },
+  {
+    "question":"Konjugasyon nedir?",
+    "answer":"Canlı bakteriler arasında F pilusu aracılığıyla genetik materyal aktarımıdır."
+  },
+  {
+    "question":"Bakteride spor ne işe yarar?",
+    "answer":"Zor koşullarda hayatta kalmayı sağlar."
+  },
+  {
+    "question":"Bakteride spor ne işe yarar?",
+    "answer":"Zor koşullarda hayatta kalmayı sağlar."
+  },
+  {
+    "question":"Gram pozitif bakterilerde lizozime duyarlılığı sağlayan yapı nedir?",
+    "answer":"Kalın peptidoglikan tabaka."
+  },
+  {
+    "question":"Konjugasyon nedir?",
+    "answer":"Canlı bakteriler arasında F pilusu aracılığıyla genetik materyal aktarımıdır."
+  },
+  {
+    "question":"Mycobacterium’lar hangi yöntemle boyanır?",
+    "answer":"Aside dirençli boyama."
+  },
+  {
+    "question":"EHEC enfeksiyonunun en ciddi komplikasyonu nedir?",
+    "answer":"Hemolitik Üremik Sendrom (HÜS)."
+  },
+  {
+    "question":"Gram pozitif bakterilerde lizozime duyarlılığı sağlayan yapı nedir?",
+    "answer":"Kalın peptidoglikan tabaka."
+  },
+  {
+    "question":"Spor oluşturan gram pozitif basiller hangileridir?",
+    "answer":"Bacillus ve Clostridium."
+  },
+  {
+    "question":"Spor oluşturan gram pozitif basiller hangileridir?",
+    "answer":"Bacillus ve Clostridium."
+  },
+  {
+    "question":"Sitoplazmik membranın görevleri nelerdir?",
+    "answer":"Enerji üretimi, madde geçişi, enzim ve toksin salgısı gibi birçok görevi vardır."
+  },
+  {
+    "question":"Kalın bağırsakta en çok bulunan flora bakterisi hangisidir?",
+    "answer":"Bacteroides fragilis."
+  },
+  {
+    "question":"Plazmid ile taşınan toksin örnekleri nelerdir?",
+    "answer":"Tetanoz, Botulinum, ETEC toksini."
+  },
+  {
+    "question":"EHEC enfeksiyonunun en ciddi komplikasyonu nedir?",
+    "answer":"Hemolitik Üremik Sendrom (HÜS)."
+  },
+  {
+    "question":"Beta laktam antibiyotikler nereye etki eder?",
+    "answer":"Peptidoglikan sentezini inhibe ederler."
+  },
+  {
+    "question":"Osteomyelitin en sık etkeni nedir?",
+    "answer":"Staphylococcus aureus."
+  },
+  {
+    "question":"BCYE agar hangi bakteriler için kullanılır?",
+    "answer":"Legionella, Nocardia, Francisella."
+  },
+  {
+    "question":"Mycobacterium’lar hangi yöntemle boyanır?",
+    "answer":"Aside dirençli boyama."
+  },
+  {
+    "question":"Kapsül hangi boyama yöntemiyle gösterilir?",
+    "answer":"Çini mürekkebi veya Nigrosin ile negatif boyama."
+  },
+  {
+    "question":"Gram pozitif bakterilerde lizozime duyarlılığı sağlayan yapı nedir?",
+    "answer":"Kalın peptidoglikan tabaka."
+  },
+  {
+    "question":"Bakteride spor ne işe yarar?",
+    "answer":"Zor koşullarda hayatta kalmayı sağlar."
+  },
+  {
+    "question":"Gram boyama basamakları nelerdir?",
+    "answer":"Kristal viyole, lugol, alkol, sulu fuksin."
+  },
+  {
+    "question":"Protein sentezini 30S alt birimden inhibe eden antibiyotikler hangileridir?",
+    "answer":"Aminoglikozitler ve tetrasiklinler."
+  },
+  {
+    "question":"Osteomyelitin en sık etkeni nedir?",
+    "answer":"Staphylococcus aureus."
+  },
+  {
+    "question":"EHEC enfeksiyonunun en ciddi komplikasyonu nedir?",
+    "answer":"Hemolitik Üremik Sendrom (HÜS)."
+  },
+  {
+    "question":"EHEC enfeksiyonunun en ciddi komplikasyonu nedir?",
+    "answer":"Hemolitik Üremik Sendrom (HÜS)."
+  },
+  {
+    "question":"Boğmaca tanısında hangi örnek alınmalıdır?",
+    "answer":"Nazofaringeal aspirat."
+  },
+  {
+    "question":"Haşlanmış deri sendromu hangi bakterinin toksini ile oluşur?",
+    "answer":"Staphylococcus aureus – Eksfoliatif toksin."
+  },
+  {
+    "question":"EHEC enfeksiyonunun en ciddi komplikasyonu nedir?",
+    "answer":"Hemolitik Üremik Sendrom (HÜS)."
+  },
+  {
+    "question":"Bakteride spor ne işe yarar?",
+    "answer":"Zor koşullarda hayatta kalmayı sağlar."
+  },
+  {
+    "question":"Fimbria ne işe yarar?",
+    "answer":"Tutunma ve adezyon görevini görür."
+  },
+  {
+    "question":"Difteri toksini nasıl çalışır?",
+    "answer":"EF-2’yi inhibe ederek protein sentezini durdurur."
+  },
+  {
+    "question":"Gram pozitif bakterilerde lizozime duyarlılığı sağlayan yapı nedir?",
+    "answer":"Kalın peptidoglikan tabaka."
+  },
+  {
+    "question":"Kapsül hangi işlevleri görür?",
+    "answer":"Fagositoza karşı korur, antijeniktir, tiplendirmede kullanılır."
+  },
+  {
+    "question":"Kalın bağırsakta en çok bulunan flora bakterisi hangisidir?",
+    "answer":"Bacteroides fragilis."
+  },
+  {
+    "question":"Vajinada baskın flora elemanı nedir?",
+    "answer":"Laktobasiller."
+  },
+  {
+    "question":"Mycobacterium’lar hangi yöntemle boyanır?",
+    "answer":"Aside dirençli boyama."
+  },
+  {
+    "question":"EHEC enfeksiyonunun en ciddi komplikasyonu nedir?",
+    "answer":"Hemolitik Üremik Sendrom (HÜS)."
+  },
+  {
+    "question":"Haşlanmış deri sendromu hangi bakterinin toksini ile oluşur?",
+    "answer":"Staphylococcus aureus – Eksfoliatif toksin."
+  },
+  {
+    "question":"EHEC enfeksiyonunun en ciddi komplikasyonu nedir?",
+    "answer":"Hemolitik Üremik Sendrom (HÜS)."
+  },
+  {
+    "question":"Gram pozitif bakterilerde lizozime duyarlılığı sağlayan yapı nedir?",
+    "answer":"Kalın peptidoglikan tabaka."
+  },
+  {
+    "question":"Difteri toksini nasıl çalışır?",
+    "answer":"EF-2’yi inhibe ederek protein sentezini durdurur."
+  },
+  {
+    "question":"Spor oluşturan gram pozitif basiller hangileridir?",
+    "answer":"Bacillus ve Clostridium."
+  },
+  {
+    "question":"HEPA filtreler ne için kullanılır?",
+    "answer":"Havayı sterilize etmek için, özellikle Aspergillus'tan korunmada."
+  },
+  {
+    "question":"Protein sentezini 30S alt birimden inhibe eden antibiyotikler hangileridir?",
+    "answer":"Aminoglikozitler ve tetrasiklinler."
+  },
+  {
+    "question":"EHEC enfeksiyonunun en ciddi komplikasyonu nedir?",
+    "answer":"Hemolitik Üremik Sendrom (HÜS)."
+  },
+  {
+    "question":"Kapsül hangi boyama yöntemiyle gösterilir?",
+    "answer":"Çini mürekkebi veya Nigrosin ile negatif boyama."
+  },
+  {
+    "question":"Vajinada baskın flora elemanı nedir?",
+    "answer":"Laktobasiller."
+  },
+  {
+    "question":"Gram pozitif bakterilerde lizozime duyarlılığı sağlayan yapı nedir?",
+    "answer":"Kalın peptidoglikan tabaka."
+  },
+  {
+    "question":"Kalın bağırsakta en çok bulunan flora bakterisi hangisidir?",
+    "answer":"Bacteroides fragilis."
+  },
+  {
+    "question":"EHEC enfeksiyonunun en ciddi komplikasyonu nedir?",
+    "answer":"Hemolitik Üremik Sendrom (HÜS)."
+  },
+  {
+    "question":"Yenidoğanda en sık menenjit etkeni nedir?",
+    "answer":"Streptococcus agalactiae."
+  },
+  {
+    "question":"Haşlanmış deri sendromu hangi bakterinin toksini ile oluşur?",
+    "answer":"Staphylococcus aureus – Eksfoliatif toksin."
+  },
+  {
+    "question":"EHEC enfeksiyonunun en ciddi komplikasyonu nedir?",
+    "answer":"Hemolitik Üremik Sendrom (HÜS)."
+  },
+  {
+    "question":"Konjugasyon nedir?",
+    "answer":"Canlı bakteriler arasında F pilusu aracılığıyla genetik materyal aktarımıdır."
+  },
+  {
+    "question":"Osteomyelitin en sık etkeni nedir?",
+    "answer":"Staphylococcus aureus."
+  },
+  {
+    "question":"Gram pozitif bakterilerde lizozime duyarlılığı sağlayan yapı nedir?",
+    "answer":"Kalın peptidoglikan tabaka."
+  },
+  {
+    "question":"Mycobacterium’lar hangi yöntemle boyanır?",
+    "answer":"Aside dirençli boyama."
+  },
+  {
+    "question":"Haşlanmış deri sendromu hangi bakterinin toksini ile oluşur?",
+    "answer":"Staphylococcus aureus – Eksfoliatif toksin."
+  },
+  {
+    "question":"EHEC enfeksiyonunun en ciddi komplikasyonu nedir?",
+    "answer":"Hemolitik Üremik Sendrom (HÜS)."
+  },
+  {
+    "question":"O antijeni nedir ve nerede bulunur?",
+    "answer":"Gram negatif bakterilerin LPS yapısındaki antijendir."
+  },
+  {
+    "question":"H antijeni hangi yapıya karşı oluşur?",
+    "answer":"Flagella'ya karşı oluşur."
+  },
+  {
+    "question":"Vi antijeni hangi bakteride bulunur ve ne işe yarar?",
+    "answer":"Salmonella typhi, kapsül antijenidir, fagositozu engeller."
+  },
+  {
+    "question":"Gram boyamada alkol basamağının görevi nedir?",
+    "answer":"Gram negatiflerin boyayı bırakmasını sağlar."
+  },
+  {
+    "question":"Negatif boyama ile gösterilen yapılar nelerdir?",
+    "answer":"Kapsül ve glikokaliks."
+  },
+  {
+    "question":"Transdüksiyon nedir?",
+    "answer":"Bakteriyofaj aracılığıyla genetik materyal aktarımıdır."
+  },
+  {
+    "question":"Transformasyon nedir?",
+    "answer":"Çevredeki çıplak DNA'nın alınmasıdır."
+  },
+  {
+    "question":"Hfr bakteriler ne yapar?",
+    "answer":"Konjugasyonla kromozomal genleri aktarır, karşıyı Hfr yapmaz."
+  },
+  {
+    "question":"Plazmidin transpozondan farkı nedir?",
+    "answer":"Plazmid kendi kendine çoğalabilir, transpozon çoğalamaz."
+  },
+  {
+    "question":"Konjugasyonda görevli yapı nedir?",
+    "answer":"F (seks) pilus."
+  },
+  {
+    "question":"S. aureus hangi yapısıyla antikorun Fc kısmına bağlanır?",
+    "answer":"Protein A."
+  },
+  {
+    "question":"M. tuberculosis hangi faktör ile fagolizozom oluşumunu engeller?",
+    "answer":"Kord faktör."
+  },
+  {
+    "question":"N. gonorrhoeae antijenik değişimi neyle sağlar?",
+    "answer":"Pilus yapısını değiştirerek."
+  },
+  {
+    "question":"Listeria'nın hücre içi yayılımını sağlayan mekanizması nedir?",
+    "answer":"Aktin bazlı hareket."
+  },
+  {
+    "question":"Shigella sitoplazmaya nasıl geçer?",
+    "answer":"Fagolizozomu delerek."
+  },
+  {
+    "question":"Posttravmatik panoftalmi yapan basil hangisidir?",
+    "answer":"Bacillus cereus."
+  },
+  {
+    "question":"Tetanozda en sık tutulan ilk kas hangisidir?",
+    "answer":"Masseter (çene kası)."
+  },
+  {
+    "question":"Difteride görülen yalancı membranın rengi nasıldır?",
+    "answer":"Gri-beyaz, kanamalı."
+  },
+  {
+    "question":"Şarbonda deri lezyonu nasıldır?",
+    "answer":"Nekrotik ülser, çevresi ödemli ve ağrısız."
+  },
+  {
+    "question":"Pnömokoklar optokine nasıl tepki verir?",
+    "answer":"Duyarlıdır, üreme engellenir."
+  },
+  {
+    "question":"Thayer-Martin besiyeri ne için kullanılır?",
+    "answer":"Neisseria gonorrhoeae üretimi."
+  },
+  {
+    "question":"Lowenstein-Jensen besiyeri hangi bakteriye özgüdür?",
+    "answer":"Mycobacterium tuberculosis."
+  },
+  {
+    "question":"Chapman agar ne için seçicidir?",
+    "answer":"Staphylococcus aureus."
+  },
+  {
+    "question":"PPLO besiyeri hangi organizma için kullanılır?",
+    "answer":"Mycoplasma."
+  },
+  {
+    "question":"TCBS agar hangi bakteriye özgüdür?",
+    "answer":"Vibrio cholerae."
+  },
+  {
+    "question":"Kinolonlar hangi enzimi inhibe eder?",
+    "answer":"DNA giraz (topoizomeraz II)."
+  },
+  {
+    "question":"MLS direnci hangi antibiyotik gruplarını etkiler?",
+    "answer":"Makrolid, linkozamid, streptogramin."
+  },
+  {
+    "question":"Linezolid hangi mikroorganizmalara etkilidir?",
+    "answer":"Gram pozitif, VRE ve MRSA."
+  },
+  {
+    "question":"Daptomisin neden pnömonide kullanılmaz?",
+    "answer":"Surfaktan ile inaktive olur."
+  },
+  {
+    "question":"Metronidazol hangi bakterilere etkilidir?",
+    "answer":"Anaeroblara ve protozoonlara."
+  },
+  {
+    "question":"Yalnızca gram negatiflerde bulunan yapı nedir?",
+    "answer":"Dış membran."
+  },
+  {
+    "question":"Enzimatik olarak IgA'yı parçalayan bakteri örnekleri nelerdir?",
+    "answer":"S. pneumoniae, H. influenzae, N. meningitidis, N. gonorrhoeae."
+  },
+  {
+    "question":"EHEC'nin ayırt edici besiyeri hangisidir?",
+    "answer":"Sorbitollü MacConkey."
+  },
+  {
+    "question":"Helicobacter pylori hangi hastalıklarla ilişkilidir?",
+    "answer":"Gastrit, ülser, MALT lenfoma."
+  },
+  {
+    "question":"Shigella invazyonunu hangi yapı sağlar?",
+    "answer":"Tip III sekresyon sistemi."
+  },
+  {
+    "question":"Yersinia pestis bulaş yolu nedir?",
+    "answer":"Kemirgen piresi ısırması."
+  },
+  {
+    "question":"Karbapenemlere doğal dirençli bakteri hangisidir?",
+    "answer":"Stenotrophomonas."
+  },
+  {
+    "question":"Tifo taşıyıcılığında en çok tutulan organ hangisidir?",
+    "answer":"Safra kesesi."
+  },
+  {
+    "question":"Vibrio cholerae ishali nasıl tanımlanır?",
+    "answer":"Pirinç suyu görünümünde, bol sulu."
+  },
+  {
+    "question":"Kırmızı pigment üreten gram negatif çomak nedir?",
+    "answer":"Serratia marcescens."
+  },
+  {
+    "question":"N. gonorrhoeae antijenik değişimi neyle sağlar?",
+    "answer":"Pilus yapısını değiştirerek."
+  },
+  {
+    "question":"Vi antijeni hangi bakteride bulunur ve ne işe yarar?",
+    "answer":"Salmonella typhi, kapsül antijenidir, fagositozu engeller."
+  },
+  {
+    "question":"Hfr bakteriler ne yapar?",
+    "answer":"Konjugasyonla kromozomal genleri aktarır, karşıyı Hfr yapmaz."
+  },
+  {
+    "question":"N. gonorrhoeae antijenik değişimi neyle sağlar?",
+    "answer":"Pilus yapısını değiştirerek."
+  },
+  {
+    "question":"Pnömokoklar optokine nasıl tepki verir?",
+    "answer":"Duyarlıdır, üreme engellenir."
+  },
+  {
+    "question":"Karbapenemlere doğal dirençli bakteri hangisidir?",
+    "answer":"Stenotrophomonas."
+  },
+  {
+    "question":"Karbapenemlere doğal dirençli bakteri hangisidir?",
+    "answer":"Stenotrophomonas."
+  },
+  {
+    "question":"Karbapenemlere doğal dirençli bakteri hangisidir?",
+    "answer":"Stenotrophomonas."
+  },
+  {
+    "question":"Listeria'nın hücre içi yayılımını sağlayan mekanizması nedir?",
+    "answer":"Aktin bazlı hareket."
+  },
+  {
+    "question":"Hfr bakteriler ne yapar?",
+    "answer":"Konjugasyonla kromozomal genleri aktarır, karşıyı Hfr yapmaz."
+  },
+  {
+    "question":"Vibrio cholerae ishali nasıl tanımlanır?",
+    "answer":"Pirinç suyu görünümünde, bol sulu."
+  },
+  {
+    "question":"Tifo taşıyıcılığında en çok tutulan organ hangisidir?",
+    "answer":"Safra kesesi."
+  },
+  {
+    "question":"Negatif boyama ile gösterilen yapılar nelerdir?",
+    "answer":"Kapsül ve glikokaliks."
+  },
+  {
+    "question":"Konjugasyonda görevli yapı nedir?",
+    "answer":"F (seks) pilus."
+  },
+  {
+    "question":"Hfr bakteriler ne yapar?",
+    "answer":"Konjugasyonla kromozomal genleri aktarır, karşıyı Hfr yapmaz."
+  },
+  {
+    "question":"Negatif boyama ile gösterilen yapılar nelerdir?",
+    "answer":"Kapsül ve glikokaliks."
+  },
+  {
+    "question":"Shigella sitoplazmaya nasıl geçer?",
+    "answer":"Fagolizozomu delerek."
+  },
+  {
+    "question":"Pnömokoklar optokine nasıl tepki verir?",
+    "answer":"Duyarlıdır, üreme engellenir."
+  },
+  {
+    "question":"O antijeni nedir ve nerede bulunur?",
+    "answer":"Gram negatif bakterilerin LPS yapısındaki antijendir."
+  },
+  {
+    "question":"Yalnızca gram negatiflerde bulunan yapı nedir?",
+    "answer":"Dış membran."
+  },
+  {
+    "question":"TCBS agar hangi bakteriye özgüdür?",
+    "answer":"Vibrio cholerae."
+  },
+  {
+    "question":"Thayer-Martin besiyeri ne için kullanılır?",
+    "answer":"Neisseria gonorrhoeae üretimi."
+  },
+  {
+    "question":"Kinolonlar hangi enzimi inhibe eder?",
+    "answer":"DNA giraz (topoizomeraz II)."
+  },
+  {
+    "question":"Lowenstein-Jensen besiyeri hangi bakteriye özgüdür?",
+    "answer":"Mycobacterium tuberculosis."
+  },
+  {
+    "question":"Lowenstein-Jensen besiyeri hangi bakteriye özgüdür?",
+    "answer":"Mycobacterium tuberculosis."
+  },
+  {
+    "question":"Pnömokoklar optokine nasıl tepki verir?",
+    "answer":"Duyarlıdır, üreme engellenir."
+  },
+  {
+    "question":"Pnömokoklar optokine nasıl tepki verir?",
+    "answer":"Duyarlıdır, üreme engellenir."
+  },
+  {
+    "question":"Karbapenemlere doğal dirençli bakteri hangisidir?",
+    "answer":"Stenotrophomonas."
+  },
+  {
+    "question":"EHEC'nin ayırt edici besiyeri hangisidir?",
+    "answer":"Sorbitollü MacConkey."
+  },
+  {
+    "question":"Thayer-Martin besiyeri ne için kullanılır?",
+    "answer":"Neisseria gonorrhoeae üretimi."
+  },
+  {
+    "question":"Tifo taşıyıcılığında en çok tutulan organ hangisidir?",
+    "answer":"Safra kesesi."
+  },
+  {
+    "question":"Tifo taşıyıcılığında en çok tutulan organ hangisidir?",
+    "answer":"Safra kesesi."
+  },
+  {
+    "question":"Transdüksiyon nedir?",
+    "answer":"Bakteriyofaj aracılığıyla genetik materyal aktarımıdır."
+  },
+  {
+    "question":"Pnömokoklar optokine nasıl tepki verir?",
+    "answer":"Duyarlıdır, üreme engellenir."
+  },
+  {
+    "question":"Linezolid hangi mikroorganizmalara etkilidir?",
+    "answer":"Gram pozitif, VRE ve MRSA."
+  },
+  {
+    "question":"Difteride görülen yalancı membranın rengi nasıldır?",
+    "answer":"Gri-beyaz, kanamalı."
+  },
+  {
+    "question":"Posttravmatik panoftalmi yapan basil hangisidir?",
+    "answer":"Bacillus cereus."
+  },
+  {
+    "question":"TCBS agar hangi bakteriye özgüdür?",
+    "answer":"Vibrio cholerae."
+  },
+  {
+    "question":"Shigella sitoplazmaya nasıl geçer?",
+    "answer":"Fagolizozomu delerek."
+  },
+  {
+    "question":"Shigella invazyonunu hangi yapı sağlar?",
+    "answer":"Tip III sekresyon sistemi."
+  },
+  {
+    "question":"Lowenstein-Jensen besiyeri hangi bakteriye özgüdür?",
+    "answer":"Mycobacterium tuberculosis."
+  },
+  {
+    "question":"Vibrio cholerae ishali nasıl tanımlanır?",
+    "answer":"Pirinç suyu görünümünde, bol sulu."
+  },
+  {
+    "question":"Lowenstein-Jensen besiyeri hangi bakteriye özgüdür?",
+    "answer":"Mycobacterium tuberculosis."
+  },
+  {
+    "question":"Pnömokoklar optokine nasıl tepki verir?",
+    "answer":"Duyarlıdır, üreme engellenir."
+  },
+  {
+    "question":"Konjugasyonda görevli yapı nedir?",
+    "answer":"F (seks) pilus."
+  },
+  {
+    "question":"Yersinia pestis bulaş yolu nedir?",
+    "answer":"Kemirgen piresi ısırması."
+  },
+  {
+    "question":"Negatif boyama ile gösterilen yapılar nelerdir?",
+    "answer":"Kapsül ve glikokaliks."
+  },
+  {
+    "question":"N. gonorrhoeae antijenik değişimi neyle sağlar?",
+    "answer":"Pilus yapısını değiştirerek."
+  },
+  {
+    "question":"Pnömokoklar optokine nasıl tepki verir?",
+    "answer":"Duyarlıdır, üreme engellenir."
+  },
+  {
+    "question":"Pnömokoklar optokine nasıl tepki verir?",
+    "answer":"Duyarlıdır, üreme engellenir."
+  },
+  {
+    "question":"Karbapenemlere doğal dirençli bakteri hangisidir?",
+    "answer":"Stenotrophomonas."
+  },
+  {
+    "question":"Şarbonda deri lezyonu nasıldır?",
+    "answer":"Nekrotik ülser, çevresi ödemli ve ağrısız."
+  },
+  {
+    "question":"N. gonorrhoeae antijenik değişimi neyle sağlar?",
+    "answer":"Pilus yapısını değiştirerek."
+  },
+  {
+    "question":"Pnömokoklar optokine nasıl tepki verir?",
+    "answer":"Duyarlıdır, üreme engellenir."
+  },
+  {
+    "question":"PPLO besiyeri hangi organizma için kullanılır?",
+    "answer":"Mycoplasma."
+  },
+  {
+    "question":"Konjugasyonda görevli yapı nedir?",
+    "answer":"F (seks) pilus."
+  },
+  {
+    "question":"Tifo taşıyıcılığında en çok tutulan organ hangisidir?",
+    "answer":"Safra kesesi."
+  },
+  {
+    "question":"Plazmidin transpozondan farkı nedir?",
+    "answer":"Plazmid kendi kendine çoğalabilir, transpozon çoğalamaz."
+  },
+  {
+    "question":"Linezolid hangi mikroorganizmalara etkilidir?",
+    "answer":"Gram pozitif, VRE ve MRSA."
+  },
+  {
+    "question":"Pnömokoklar optokine nasıl tepki verir?",
+    "answer":"Duyarlıdır, üreme engellenir."
+  },
+  {
+    "question":"Üre nefes testi gibi hızlıca hayatıma etki eden kimdi?",
+    "answer":"Sensin akıllı bıdığım :*"
+  },
+  {
+    "question":"Hangi yapı gibi sen de kalbime tutunmayı başardın?",
+    "answer":"Fimbria gibi… 💛"
+  },
+  {
+    "question":"16S rRNA gibi asla değişmeyen ne var?",
+    "answer":"Sana olan sevgim.. Hiçbir mutasyon etkileyemez <3"
+  }
+        ];
+
+        // Personal messages that will appear randomly
+        const personalMessages = [
+            "Seni çok seviyorum bebeimmm! ♥",
+            "Harika bir diş hekimi olacaksın!",
+            "Yanındayım askmmm!",
+            "Akıllı bıdık <3",
+            "Yakında kavuşacağız aşkım <333",
+            "Biraz mola verip dinlenmeyi unutma bitanem!!!!"
+        ];
+
+        // App state
+        let state = {
+            currentIndex: 0,
+            knownQuestions: {},
+            reviewQuestions: {},
+            questionsOrder: [],
+            isCardFlipped: false
+        };
+
+        // DOM Elements
+        const card = document.getElementById('card');
+        const questionText = document.getElementById('question-text');
+        const answerText = document.getElementById('answer-text');
+        const progressBar = document.getElementById('progress-bar');
+        const progressText = document.getElementById('progress-text');
+        const knownCount = document.getElementById('known-count');
+        const reviewCount = document.getElementById('review-count');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const flipBtn = document.getElementById('flip-btn');
+        const shuffleBtn = document.getElementById('shuffle-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const knownBtn = document.getElementById('known-btn');
+        const reviewBtn = document.getElementById('review-btn');
+        const notification = document.getElementById('notification');
+        const notificationText = document.getElementById('notification-text');
+        const loadingOverlay = document.getElementById('loading-overlay');
+
+        // Initialize the app
+        function initApp() {
+            loadState();
+            
+            if (state.questionsOrder.length === 0) {
+                // First time initialization
+                state.questionsOrder = Array.from({ length: questionsData.length }, (_, i) => i);
+            }
+            
+            updateUI();
+            setTimeout(() => {
+                loadingOverlay.classList.add('animate__animated', 'animate__fadeOut');
+                setTimeout(() => {
+                    loadingOverlay.style.display = 'none';
+                }, 500);
+            }, 1500);
+            
+            // Show a random personal message after a delay
+            setTimeout(showRandomMessage, 10000);
+        }
+
+        // Load state from localStorage
+        function loadState() {
+            const savedState = localStorage.getItem('medicalQuizState');
+            if (savedState) {
+                try {
+                    const parsedState = JSON.parse(savedState);
+                    state = { ...state, ...parsedState };
+                } catch (e) {
+                    console.error('Failed to parse saved state:', e);
+                }
+            }
+        }
+
+        // Save state to localStorage
+        function saveState() {
+            localStorage.setItem('medicalQuizState', JSON.stringify({
+                currentIndex: state.currentIndex,
+                knownQuestions: state.knownQuestions,
+                reviewQuestions: state.reviewQuestions,
+                questionsOrder: state.questionsOrder
+            }));
+        }
+
+        // Update UI elements based on current state
+        function updateUI() {
+            if (questionsData.length === 0) {
+                questionText.textContent = "Henüz soru eklenmemiş.";
+                answerText.textContent = "Lütfen soru ekleyin.";
+                disableControls(true);
+                return;
+            }
+            
+            const currentQuestionIndex = state.questionsOrder[state.currentIndex];
+            const currentQuestion = questionsData[currentQuestionIndex];
+            
+            // Update question and answer text
+            questionText.textContent = currentQuestion.question;
+            answerText.textContent = currentQuestion.answer;
+            
+            // Reset card flip state
+            if (state.isCardFlipped) {
+                card.classList.remove('flipped');
+                state.isCardFlipped = false;
+                flipBtn.textContent = "Cevabı Göster";
+            }
+            
+            // Update progress indicators
+            const knownTotal = Object.keys(state.knownQuestions).length;
+            const reviewTotal = Object.keys(state.reviewQuestions).length;
+            const progress = Math.round((knownTotal / questionsData.length) * 100);
+            
+            progressBar.style.width = `${progress}%`;
+            progressText.textContent = `${state.currentIndex + 1}/${questionsData.length} soru`;
+            knownCount.textContent = knownTotal;
+            reviewCount.textContent = reviewTotal;
+            
+            // Update button states
+            prevBtn.disabled = state.currentIndex === 0;
+            nextBtn.disabled = state.currentIndex === questionsData.length - 1;
+            
+            // Highlight button if current question is marked
+            const currentId = currentQuestionIndex.toString();
+            knownBtn.classList.remove('ring-4', 'ring-green-200');
+            reviewBtn.classList.remove('ring-4', 'ring-red-200');
+            
+            if (state.knownQuestions[currentId]) {
+                knownBtn.classList.add('ring-4', 'ring-green-200');
+            } else if (state.reviewQuestions[currentId]) {
+                reviewBtn.classList.add('ring-4', 'ring-red-200');
+            }
+            
+            saveState();
+        }
+
+        // Flip the card to show answer
+        function flipCard() {
+            card.classList.toggle('flipped');
+            state.isCardFlipped = !state.isCardFlipped;
+            
+            if (state.isCardFlipped) {
+                flipBtn.textContent = "Soruyu Göster";
+            } else {
+                flipBtn.textContent = "Cevabı Göster";
+            }
+        }
+
+        // Move to the next question
+        function nextQuestion() {
+            if (state.currentIndex < questionsData.length - 1) {
+                state.currentIndex++;
+                updateUI();
+            }
+        }
+
+        // Move to the previous question
+        function previousQuestion() {
+            if (state.currentIndex > 0) {
+                state.currentIndex--;
+                updateUI();
+            }
+        }
+
+        // Mark current question as known
+        function markAsKnown() {
+            const currentId = state.questionsOrder[state.currentIndex].toString();
+            
+            // If already marked as review, remove that mark
+            if (state.reviewQuestions[currentId]) {
+                delete state.reviewQuestions[currentId];
+            }
+            
+            // Toggle known status
+            if (state.knownQuestions[currentId]) {
+                delete state.knownQuestions[currentId];
+                showNotification("Soru bilinmiyor olarak işaretlendi.");
+            } else {
+                state.knownQuestions[currentId] = true;
+                showNotification("Soru biliniyor olarak işaretlendi! 🎉");
+                createConfetti(10);
+                
+                // Check if we reached a milestone
+                const knownTotal = Object.keys(state.knownQuestions).length;
+                if (knownTotal % 10 === 0) {
+                    setTimeout(() => {
+                        showNotification(`Tebrikler! ${knownTotal} soruyu biliyorsun! 🥳`, 3000);
+                        createConfetti(30);
+                    }, 1000);
+                }
+            }
+            
+            updateUI();
+            
+            // Automatically move to next question if this isn't the last one
+            if (state.currentIndex < questionsData.length - 1) {
+                setTimeout(nextQuestion, 800);
+            }
+        }
+
+        // Mark current question for review
+        function markForReview() {
+            const currentId = state.questionsOrder[state.currentIndex].toString();
+            
+            // If already marked as known, remove that mark
+            if (state.knownQuestions[currentId]) {
+                delete state.knownQuestions[currentId];
+            }
+            
+            // Toggle review status
+            if (state.reviewQuestions[currentId]) {
+                delete state.reviewQuestions[currentId];
+                showNotification("Soru tekrar listesinden çıkarıldı.");
+            } else {
+                state.reviewQuestions[currentId] = true;
+                showNotification("Soru tekrar edilecek olarak işaretlendi.");
+            }
+            
+            updateUI();
+            
+            // Automatically move to next question if this isn't the last one
+            if (state.currentIndex < questionsData.length - 1) {
+                setTimeout(nextQuestion, 800);
+            }
+        }
+
+        // Shuffle the questions
+        function shuffleQuestions() {
+            state.questionsOrder = shuffleArray([...state.questionsOrder]);
+            state.currentIndex = 0;
+            showNotification("Sorular karıştırıldı!");
+            updateUI();
+        }
+
+        // Reset progress
+        function resetProgress() {
+            if (confirm("Tüm ilerlemeniz sıfırlanacak. Emin misiniz?")) {
+                state.knownQuestions = {};
+                state.reviewQuestions = {};
+                state.currentIndex = 0;
+                showNotification("İlerleme sıfırlandı.");
+                updateUI();
+            }
+        }
+
+        // Show notification message
+        function showNotification(message, duration = 2000) {
+            notificationText.textContent = message;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, duration);
+        }
+
+        // Create confetti effect
+        function createConfetti(count = 20) {
+            const colors = ['#FF69B4', '#FFB6C1', '#FFC0CB', '#FF1493', '#FFA07A'];
+            
+            for (let i = 0; i < count; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                confetti.style.opacity = Math.random() + 0.5;
+                document.body.appendChild(confetti);
+                
+                // Remove confetti after animation completes
+                setTimeout(() => {
+                    confetti.remove();
+                }, 5000);
+            }
+        }
+
+        // Show a random personal message
+        function showRandomMessage() {
+            if (personalMessages.length > 0) {
+                const message = personalMessages[Math.floor(Math.random() * personalMessages.length)];
+                showNotification(message, 4000);
+                
+                // Schedule next message between 30s and 2min
+                const nextTime = Math.random() * 90000 + 30000;
+                setTimeout(showRandomMessage, nextTime);
+            }
+        }
+
+        // Helper function to shuffle an array
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // Helper function to disable all controls
+        function disableControls(disabled) {
+            prevBtn.disabled = disabled;
+            nextBtn.disabled = disabled;
+            flipBtn.disabled = disabled;
+            shuffleBtn.disabled = disabled;
+            resetBtn.disabled = disabled;
+            knownBtn.disabled = disabled;
+            reviewBtn.disabled = disabled;
+        }
+
+        // Event listeners
+        flipBtn.addEventListener('click', flipCard);
+        nextBtn.addEventListener('click', nextQuestion);
+        prevBtn.addEventListener('click', previousQuestion);
+        knownBtn.addEventListener('click', markAsKnown);
+        reviewBtn.addEventListener('click', markForReview);
+        shuffleBtn.addEventListener('click', shuffleQuestions);
+        resetBtn.addEventListener('click', resetProgress);
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') nextQuestion();
+            else if (e.key === 'ArrowLeft') previousQuestion();
+            else if (e.key === ' ' || e.key === 'Enter') flipCard();
+            else if (e.key === 'k') markAsKnown();
+            else if (e.key === 'r') markForReview();
+        });
+
+        // Initialize the app on load
+        window.addEventListener('load', initApp);
+    </script>
+</body>
+</html>
