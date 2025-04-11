@@ -193,6 +193,72 @@
             color: white;
         }
 
+        /* List view styles */
+        .list-container {
+            display: none;
+            flex-direction: column;
+            gap: 16px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+        
+        .list-item {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+        
+        .list-item:hover {
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+            transform: translateY(-2px);
+        }
+        
+        .list-question {
+            background: linear-gradient(135deg, #FF69B4, #FFB6C1);
+            color: white;
+            padding: 12px 16px;
+            font-weight: 500;
+            position: relative;
+        }
+        
+        .list-answer {
+            padding: 12px 16px;
+            border-top: 1px solid #f0f0f0;
+            /* Ensure long texts break properly */
+            overflow-wrap: break-word;
+            word-wrap: break-word;
+        }
+        
+        .list-actions {
+            display: flex;
+            justify-content: flex-end;
+            padding: 8px 16px;
+            min-height: 16px;
+            gap: 8px;
+            background-color: #f9f9f9;
+        }
+        
+        .list-bookmark-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+        }
+        
+        .list-bookmark-btn svg {
+            width: 18px;
+            height: 18px;
+            fill: transparent;
+            stroke: #fff;
+            stroke-width: 2;
+        }
+        
+        .list-bookmark-btn.active svg {
+            fill: #FFD700;
+            stroke: #FFD700;
+        }
+
         /* Pet container */
         .pet-container {
             width: 120px;
@@ -278,8 +344,8 @@
             </div>
         </div>
         
-        <!-- Navigation Controls -->
-        <div class="controls mb-4 bg-white rounded-lg shadow-md p-3 animate__animated animate__fadeIn animate__delay-1s">
+        <!-- Navigation Controls (only visible in card view) -->
+        <div id="card-controls" class="controls mb-4 bg-white rounded-lg shadow-md p-3 animate__animated animate__fadeIn animate__delay-1s">
             <div class="hidden sm:flex sm:flex-wrap sm:justify-between sm:items-center">
                 <div class="buttons-left flex space-x-2">
                     <button id="prev-btn" class="px-4 py-2 bg-secondary text-white rounded-lg hover:bg-primary transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
@@ -317,8 +383,8 @@
             </div>
         </div>
         
-        <!-- Card Container -->
-        <div class="card-container mb-4 h-80 animate__animated animate__zoomIn relative">
+        <!-- Card Container (visible only in card view) -->
+        <div id="card-container" class="card-container mb-4 h-80 animate__animated animate__zoomIn relative">
             <div id="card" class="card w-full h-full shadow-xl">
                 <button id="bookmark-btn" class="bookmark-btn">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
@@ -338,8 +404,13 @@
             </div>
         </div>
         
-        <!-- Rating and Flip Container -->
-        <div class="action-container bg-white rounded-lg shadow-md p-4 mb-4 animate__animated animate__fadeIn animate__delay-2s">
+        <!-- List View Container (visible only in filtered views) -->
+        <div id="list-container" class="list-container mb-4">
+            <!-- List items will be generated dynamically -->
+        </div>
+
+        <!-- Rating and Flip Container (visible only in card view) -->
+        <div id="card-actions" class="action-container bg-white rounded-lg shadow-md p-4 mb-4 animate__animated animate__fadeIn animate__delay-2s">
             <div class="flex flex-col md:flex-row justify-center items-center space-y-4 md:space-y-0 md:space-x-4">
                 <button id="flip-btn" class="w-full md:w-auto px-5 py-3 bg-primary text-white rounded-lg hover:bg-pink-600 transition duration-300 text-lg font-medium">
                     <span>Cevabı Göster</span>
@@ -353,6 +424,15 @@
                         <span>Tekrar Et</span>
                     </button>
                 </div>
+            </div>
+        </div>
+
+        <!-- List View Actions Container (visible only in filtered views) -->
+        <div id="list-actions-container" class="list-actions-container bg-white rounded-lg shadow-md p-4 mb-4 hidden">
+            <div class="flex justify-center">
+                <button id="reset-filter-btn" class="px-5 py-3 bg-secondary text-white rounded-lg hover:bg-primary transition duration-300 text-lg font-medium">
+                    <span>Kart Görünümüne Dön</span>
+                </button>
             </div>
         </div>
         
@@ -418,8 +498,7 @@
             questionsData = [
                 { id: "q001", question: "Gram boyamada mordan nedir?", answer: "Boyayı hücreye bağlayan maddedir. İodine (İyot) kullanılır." },
                 { id: "q002", question: "Kist ile abse arasındaki farklar nelerdir?", answer: "Kist: Oluşum yavaştır, epitel doku ile çevrilidir, sıvı berrak ve visközdür, normal doku basınç etkisiyle ezilir. Abse: İnflamasyonla hızlı oluşur, piyojenik membranla çevrilidir, içi püy doludur, normal doku lizis ile yıkılır." },
-                { id: "q003", question: "Mycobacterium tuberculosis'in virülans faktörleri nelerdir?", answer: "Cord faktör (Trehaloz dimikolat), Sülfatidler (Sulfatides)" },
-                // More fallback questions can be added here
+                { id: "q003", question: "Mycobacterium tuberculosis'in virülans faktörleri nelerdir?", answer: "Cord faktör (Trehaloz dimikolat), Sülfatidler (Sulfatides)" }
             ];
         }
 
@@ -440,8 +519,10 @@
             reviewQuestions: {},
             bookmarkedQuestions: {},
             questionsOrder: [],
+            originalQuestionsOrder: [],
             isCardFlipped: false,
-            activeFilter: 'all' // Options: 'all', 'bookmarked', 'known', 'review'
+            activeFilter: 'all',
+            viewMode: 'card'
         };
 
         // DOM Elements
@@ -471,6 +552,14 @@
         const loadingOverlay = document.getElementById('loading-overlay');
         const petContainer = document.getElementById('pet-container');
         
+        // View container elements
+        const cardContainer = document.getElementById('card-container');
+        const cardControls = document.getElementById('card-controls');
+        const cardActions = document.getElementById('card-actions');
+        const listContainer = document.getElementById('list-container');
+        const listActionsContainer = document.getElementById('list-actions-container');
+        const resetFilterBtn = document.getElementById('reset-filter-btn');
+        
         // Filter tabs
         const filterAll = document.getElementById('filter-all');
         const filterBookmarked = document.getElementById('filter-bookmarked');
@@ -490,24 +579,22 @@
         function initApp() {
             loadState();
             
+            // Initialize the original questions order
+            if (state.originalQuestionsOrder.length === 0 || state.originalQuestionsOrder.length !== questionsData.length) {
+                state.originalQuestionsOrder = Array.from({ length: questionsData.length }, (_, i) => i);
+            }
+            
             if (state.questionsOrder.length === 0 || state.questionsOrder.length !== questionsData.length) {
-                // First time initialization or questions count changed
-                state.questionsOrder = Array.from({ length: questionsData.length }, (_, i) => i);
+                state.questionsOrder = [...state.originalQuestionsOrder];
             }
 
-            // Ensure currentIndex is valid
             validateCurrentIndex();
-            
-            // Apply active filter
             applyFilter(state.activeFilter);
-            
-            // Update UI
             updateUI();
             
-            // Initialize pet
             if (window.VirtualPet) {
-                const knownCount = Object.keys(state.knownQuestions).length;
-                const progress = questionsData.length > 0 ? (knownCount / questionsData.length) * 100 : 0;
+                const knownTotal = Object.keys(state.knownQuestions).length;
+                const progress = questionsData.length > 0 ? (knownTotal / questionsData.length) * 100 : 0;
                 window.VirtualPet.init(petContainer, progress);
             }
             
@@ -518,25 +605,21 @@
                 }, 500);
             }, 1500);
             
-            // Show a random personal message after a delay
             setTimeout(showRandomMessage, 10000);
         }
 
-        // Validate and correct currentIndex if needed
         function validateCurrentIndex() {
             if (questionsData.length === 0) {
                 state.currentIndex = 0;
                 return;
             }
-            
             if (state.currentIndex < 0) {
                 state.currentIndex = 0;
-            } else if (state.currentIndex >= questionsData.length) {
-                state.currentIndex = questionsData.length - 1;
+            } else if (state.currentIndex >= state.questionsOrder.length) {
+                state.currentIndex = Math.max(0, state.questionsOrder.length - 1);
             }
         }
 
-        // Load state from localStorage
         function loadState() {
             try {
                 const savedState = localStorage.getItem('medicalQuizState');
@@ -546,20 +629,20 @@
                 }
             } catch (e) {
                 console.error('Failed to parse saved state:', e);
-                // Reset to default state on error
                 state = {
                     currentIndex: 0,
                     knownQuestions: {},
                     reviewQuestions: {},
                     bookmarkedQuestions: {},
                     questionsOrder: [],
+                    originalQuestionsOrder: [],
                     isCardFlipped: false,
-                    activeFilter: 'all'
+                    activeFilter: 'all',
+                    viewMode: 'card'
                 };
             }
         }
 
-        // Save state to localStorage
         function saveState() {
             try {
                 localStorage.setItem('medicalQuizState', JSON.stringify({
@@ -568,7 +651,9 @@
                     reviewQuestions: state.reviewQuestions,
                     bookmarkedQuestions: state.bookmarkedQuestions,
                     questionsOrder: state.questionsOrder,
-                    activeFilter: state.activeFilter
+                    originalQuestionsOrder: state.originalQuestionsOrder,
+                    activeFilter: state.activeFilter,
+                    viewMode: state.viewMode
                 }));
             } catch (e) {
                 console.error('Failed to save state:', e);
@@ -576,64 +661,60 @@
             }
         }
 
-        // Apply the filter
         function applyFilter(filter) {
             state.activeFilter = filter;
             
-            // Update active tab UI
             filterAll.classList.toggle('active', filter === 'all');
             filterBookmarked.classList.toggle('active', filter === 'bookmarked');
             filterKnown.classList.toggle('active', filter === 'known');
             filterReview.classList.toggle('active', filter === 'review');
             
-            // Create a filtered order of questions
-            let filteredOrder = [];
-            
-            switch (filter) {
-                case 'bookmarked':
-                    for (let i = 0; i < questionsData.length; i++) {
-                        const questionId = getQuestionId(i);
-                        if (questionId && state.bookmarkedQuestions[questionId]) {
-                            filteredOrder.push(i);
+            if (filter === 'all') {
+                state.viewMode = 'card';
+                state.questionsOrder = [...state.originalQuestionsOrder];
+            } else {
+                state.viewMode = 'list';
+                let filteredOrder = [];
+                
+                switch (filter) {
+                    case 'bookmarked':
+                        for (let i = 0; i < questionsData.length; i++) {
+                            const questionId = getQuestionId(i);
+                            if (questionId && state.bookmarkedQuestions[questionId]) {
+                                filteredOrder.push(i);
+                            }
                         }
-                    }
-                    break;
-                case 'known':
-                    for (let i = 0; i < questionsData.length; i++) {
-                        const questionId = getQuestionId(i);
-                        if (questionId && state.knownQuestions[questionId]) {
-                            filteredOrder.push(i);
+                        break;
+                    case 'known':
+                        for (let i = 0; i < questionsData.length; i++) {
+                            const questionId = getQuestionId(i);
+                            if (questionId && state.knownQuestions[questionId]) {
+                                filteredOrder.push(i);
+                            }
                         }
-                    }
-                    break;
-                case 'review':
-                    for (let i = 0; i < questionsData.length; i++) {
-                        const questionId = getQuestionId(i);
-                        if (questionId && state.reviewQuestions[questionId]) {
-                            filteredOrder.push(i);
+                        break;
+                    case 'review':
+                        for (let i = 0; i < questionsData.length; i++) {
+                            const questionId = getQuestionId(i);
+                            if (questionId && state.reviewQuestions[questionId]) {
+                                filteredOrder.push(i);
+                            }
                         }
-                    }
-                    break;
-                default: // 'all'
-                    filteredOrder = [...state.questionsOrder];
-                    break;
+                        break;
+                }
+                
+                if (filteredOrder.length === 0) {
+                    showNotification(`Bu filtre için hiç soru bulunamadı.`, 3000);
+                }
+                
+                state.questionsOrder = filteredOrder;
             }
             
-            // If no questions match the filter, show a message and keep the current view
-            if (filteredOrder.length === 0 && filter !== 'all') {
-                showNotification(`Bu filtre için hiç soru bulunamadı.`, 3000);
-                return;
-            }
-            
-            // Update the order and reset current index
-            state.questionsOrder = filteredOrder;
             state.currentIndex = 0;
-            
             saveState();
             updateUI();
         }
 
-        // Update UI elements based on current state
         function updateUI() {
             if (questionsData.length === 0) {
                 questionText.textContent = "Henüz soru eklenmemiş.";
@@ -644,35 +725,65 @@
             
             validateCurrentIndex();
             
-            const currentQuestionIndex = state.questionsOrder[state.currentIndex];
-            // Check if index is valid
-            if (currentQuestionIndex === undefined || !questionsData[currentQuestionIndex]) {
-                console.error("Invalid question index:", currentQuestionIndex);
-                state.currentIndex = 0;
-                updateUI();
-                return;
+            cardContainer.style.display = state.viewMode === 'card' ? 'block' : 'none';
+            cardControls.style.display = state.viewMode === 'card' ? 'block' : 'none';
+            cardActions.style.display = state.viewMode === 'card' ? 'block' : 'none';
+            
+            listContainer.style.display = state.viewMode === 'list' ? 'flex' : 'none';
+            listActionsContainer.style.display = state.viewMode === 'list' ? 'block' : 'none';
+            
+            if (state.viewMode === 'card' && state.questionsOrder.length > 0) {
+                const currentQuestionIndex = state.questionsOrder[state.currentIndex];
+                if (currentQuestionIndex === undefined || !questionsData[currentQuestionIndex]) {
+                    console.error("Invalid question index:", currentQuestionIndex);
+                    state.currentIndex = 0;
+                    updateUI();
+                    return;
+                }
+                const currentQuestion = questionsData[currentQuestionIndex];
+                questionText.textContent = currentQuestion.question || "Soru bulunamadı";
+                answerText.textContent = currentQuestion.answer || "Cevap bulunamadı";
+                
+                if (state.isCardFlipped) {
+                    card.classList.remove('flipped');
+                    state.isCardFlipped = false;
+                    flipBtn.textContent = "Cevabı Göster";
+                }
+                
+                const isFirstQuestion = state.currentIndex === 0;
+                const isLastQuestion = state.currentIndex === state.questionsOrder.length - 1;
+                
+                prevBtn.disabled = isFirstQuestion;
+                prevBtnMobile.disabled = isFirstQuestion;
+                nextBtn.disabled = isLastQuestion;
+                nextBtnMobile.disabled = isLastQuestion;
+                
+                const currentId = getQuestionId(currentQuestionIndex);
+                knownBtn.classList.remove('ring-4', 'ring-green-200');
+                reviewBtn.classList.remove('ring-4', 'ring-red-200');
+                bookmarkBtn.classList.remove('active');
+                
+                if (currentId) {
+                    if (state.knownQuestions[currentId]) {
+                        knownBtn.classList.add('ring-4', 'ring-green-200');
+                    }
+                    if (state.reviewQuestions[currentId]) {
+                        reviewBtn.classList.add('ring-4', 'ring-red-200');
+                    }
+                    if (state.bookmarkedQuestions[currentId]) {
+                        bookmarkBtn.classList.add('active');
+                    }
+                }
+            }
+            else if (state.viewMode === 'list') {
+                renderListView();
             }
             
-            const currentQuestion = questionsData[currentQuestionIndex];
-            
-            // Update question and answer text
-            questionText.textContent = currentQuestion.question || "Soru bulunamadı";
-            answerText.textContent = currentQuestion.answer || "Cevap bulunamadı";
-            
-            // Reset card flip state
-            if (state.isCardFlipped) {
-                card.classList.remove('flipped');
-                state.isCardFlipped = false;
-                flipBtn.textContent = "Cevabı Göster";
-            }
-            
-            // Update progress indicators
             const knownTotal = Object.keys(state.knownQuestions).length;
             const reviewTotal = Object.keys(state.reviewQuestions).length;
             const bookmarkTotal = Object.keys(state.bookmarkedQuestions).length;
             const progress = questionsData.length > 0 ? Math.round((knownTotal / questionsData.length) * 100) : 0;
             
-            // Improve progress bar display for small percentages
             if (knownTotal > 0 && progress < 2) {
                 progressBar.style.width = '4px';
                 progressDot.classList.remove('hidden');
@@ -681,41 +792,16 @@
                 progressDot.classList.add('hidden');
             }
             
-            progressText.textContent = `${state.currentIndex + 1}/${state.questionsOrder.length} soru`;
+            if (state.viewMode === 'card') {
+                progressText.textContent = `${state.currentIndex + 1}/${state.questionsOrder.length} soru`;
+            } else {
+                progressText.textContent = `${state.questionsOrder.length} soru`;
+            }
+            
             knownCount.textContent = knownTotal;
             reviewCount.textContent = reviewTotal;
             bookmarkCount.textContent = bookmarkTotal;
             
-            // Update button states
-            const isFirstQuestion = state.currentIndex === 0;
-            const isLastQuestion = state.currentIndex === state.questionsOrder.length - 1;
-            
-            prevBtn.disabled = isFirstQuestion;
-            prevBtnMobile.disabled = isFirstQuestion;
-            nextBtn.disabled = isLastQuestion;
-            nextBtnMobile.disabled = isLastQuestion;
-            
-            // Highlight button if current question is marked
-            const currentId = getQuestionId(currentQuestionIndex);
-            knownBtn.classList.remove('ring-4', 'ring-green-200');
-            reviewBtn.classList.remove('ring-4', 'ring-red-200');
-            bookmarkBtn.classList.remove('active');
-            
-            if (currentId) {
-                if (state.knownQuestions[currentId]) {
-                    knownBtn.classList.add('ring-4', 'ring-green-200');
-                }
-                
-                if (state.reviewQuestions[currentId]) {
-                    reviewBtn.classList.add('ring-4', 'ring-red-200');
-                }
-                
-                if (state.bookmarkedQuestions[currentId]) {
-                    bookmarkBtn.classList.add('active');
-                }
-            }
-            
-            // Update pet status
             if (window.VirtualPet) {
                 window.VirtualPet.updateProgress(progress);
             }
@@ -727,11 +813,151 @@
             }
         }
 
-        // Toggle bookmark for current question
+        function renderListView() {
+            listContainer.innerHTML = '';
+            
+            if (state.questionsOrder.length === 0) {
+                const emptyMessage = document.createElement('div');
+                emptyMessage.className = 'text-center p-4 text-gray-500';
+                emptyMessage.textContent = 'Bu kategoride hiç soru bulunamadı.';
+                listContainer.appendChild(emptyMessage);
+                return;
+            }
+            
+            state.questionsOrder.forEach((questionIndex, index) => {
+                const question = questionsData[questionIndex];
+                if (!question) return;
+                
+                const questionId = getQuestionId(questionIndex);
+                const listItem = document.createElement('div');
+                listItem.className = 'list-item';
+                listItem.dataset.index = index;
+                
+                const questionElement = document.createElement('div');
+                questionElement.className = 'list-question';
+                questionElement.textContent = question.question;
+                
+                const bookmarkElement = document.createElement('button');
+                bookmarkElement.className = `list-bookmark-btn ${state.bookmarkedQuestions[questionId] ? 'active' : ''}`;
+                bookmarkElement.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                        <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+                    </svg>
+                `;
+                bookmarkElement.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    toggleBookmarkInList(questionId, bookmarkElement);
+                });
+                questionElement.appendChild(bookmarkElement);
+                
+                const answerElement = document.createElement('div');
+                answerElement.className = 'list-answer';
+                answerElement.textContent = question.answer;
+                
+                const actionsElement = document.createElement('div');
+                actionsElement.className = 'list-actions';
+                
+                const knownBtnElement = document.createElement('button');
+                knownBtnElement.className = `px-3 py-1 bg-green-400 text-white rounded-lg hover:bg-green-500 transition duration-300 text-sm ${state.knownQuestions[questionId] ? 'ring-2 ring-green-200' : ''}`;
+                knownBtnElement.textContent = 'Biliyorum';
+                knownBtnElement.addEventListener('click', () => toggleKnownInList(questionId, knownBtnElement, reviewBtnElement));
+                
+                const reviewBtnElement = document.createElement('button');
+                reviewBtnElement.className = `px-3 py-1 bg-red-400 text-white rounded-lg hover:bg-red-500 transition duration-300 text-sm ${state.reviewQuestions[questionId] ? 'ring-2 ring-red-200' : ''}`;
+                reviewBtnElement.textContent = 'Tekrar Et';
+                reviewBtnElement.addEventListener('click', () => toggleReviewInList(questionId, knownBtnElement, reviewBtnElement));
+                
+                actionsElement.appendChild(knownBtnElement);
+                actionsElement.appendChild(reviewBtnElement);
+                
+                listItem.appendChild(questionElement);
+                listItem.appendChild(answerElement);
+                listItem.appendChild(actionsElement);
+                
+                listContainer.appendChild(listItem);
+            });
+        }
+
+        // Updated toggle functions for list view to immediately reapply the active filter
+        function toggleBookmarkInList(questionId, buttonElement) {
+            if (state.bookmarkedQuestions[questionId]) {
+                delete state.bookmarkedQuestions[questionId];
+                buttonElement.classList.remove('active');
+                showNotification("Soru yer imlerinden kaldırıldı.");
+            } else {
+                state.bookmarkedQuestions[questionId] = true;
+                buttonElement.classList.add('active');
+                showNotification("Soru yer imlerine eklendi.");
+                createConfetti(5);
+            }
+            if (state.activeFilter === 'bookmarked') {
+                applyFilter('bookmarked');
+            } else {
+                updateUI();
+            }
+        }
+
+        function toggleKnownInList(questionId, knownBtn, reviewBtn) {
+            if (state.reviewQuestions[questionId]) {
+                delete state.reviewQuestions[questionId];
+                reviewBtn.classList.remove('ring-2', 'ring-red-200');
+            }
+            
+            if (state.knownQuestions[questionId]) {
+                delete state.knownQuestions[questionId];
+                knownBtn.classList.remove('ring-2', 'ring-green-200');
+                showNotification("Soru bilinmiyor olarak işaretlendi.");
+            } else {
+                state.knownQuestions[questionId] = true;
+                knownBtn.classList.add('ring-2', 'ring-green-200');
+                showNotification("Soru biliniyor olarak işaretlendi! 🎉");
+                createConfetti(10);
+                const knownTotal = Object.keys(state.knownQuestions).length;
+                if (knownTotal % 10 === 0) {
+                    setTimeout(() => {
+                        showNotification(`Tebrikler! ${knownTotal} soruyu biliyorsun! 🥳`, 3000);
+                        createConfetti(30);
+                        if (window.VirtualPet) {
+                            window.VirtualPet.celebrate();
+                        }
+                    }, 1000);
+                }
+            }
+            
+            if (state.activeFilter === 'known') {
+                applyFilter('known');
+            } else {
+                updateUI();
+            }
+        }
+
+        function toggleReviewInList(questionId, knownBtn, reviewBtn) {
+            if (state.knownQuestions[questionId]) {
+                delete state.knownQuestions[questionId];
+                knownBtn.classList.remove('ring-2', 'ring-green-200');
+            }
+            
+            if (state.reviewQuestions[questionId]) {
+                delete state.reviewQuestions[questionId];
+                reviewBtn.classList.remove('ring-2', 'ring-red-200');
+                showNotification("Soru tekrar listesinden çıkarıldı.");
+            } else {
+                state.reviewQuestions[questionId] = true;
+                reviewBtn.classList.add('ring-2', 'ring-red-200');
+                showNotification("Soru tekrar edilecek olarak işaretlendi.");
+            }
+            
+            if (state.activeFilter === 'review') {
+                applyFilter('review');
+            } else {
+                updateUI();
+            }
+        }
+
+        // Toggle bookmark for current card view question
         function toggleBookmark() {
             const currentQuestionIndex = state.questionsOrder[state.currentIndex];
-            if (currentQuestionIndex === undefined || currentQuestionIndex < 0 || 
-                currentQuestionIndex >= questionsData.length) {
+            if (currentQuestionIndex === undefined || currentQuestionIndex < 0 || currentQuestionIndex >= questionsData.length) {
                 console.error("Invalid question index for bookmarking");
                 return;
             }
@@ -742,7 +968,6 @@
                 return;
             }
             
-            // Toggle bookmark status
             if (state.bookmarkedQuestions[currentId]) {
                 delete state.bookmarkedQuestions[currentId];
                 showNotification("Soru yer imlerinden kaldırıldı.");
@@ -757,19 +982,12 @@
             updateUI();
         }
 
-        // Flip the card to show answer
         function flipCard() {
             card.classList.toggle('flipped');
             state.isCardFlipped = !state.isCardFlipped;
-            
-            if (state.isCardFlipped) {
-                flipBtn.textContent = "Soruyu Göster";
-            } else {
-                flipBtn.textContent = "Cevabı Göster";
-            }
+            flipBtn.textContent = state.isCardFlipped ? "Soruyu Göster" : "Cevabı Göster";
         }
 
-        // Move to the next question
         function nextQuestion() {
             if (state.currentIndex < state.questionsOrder.length - 1) {
                 state.currentIndex++;
@@ -777,7 +995,6 @@
             }
         }
 
-        // Move to the previous question
         function previousQuestion() {
             if (state.currentIndex > 0) {
                 state.currentIndex--;
@@ -785,11 +1002,9 @@
             }
         }
 
-        // Mark current question as known
         function markAsKnown() {
             const currentQuestionIndex = state.questionsOrder[state.currentIndex];
-            if (currentQuestionIndex === undefined || currentQuestionIndex < 0 || 
-                currentQuestionIndex >= questionsData.length) {
+            if (currentQuestionIndex === undefined || currentQuestionIndex < 0 || currentQuestionIndex >= questionsData.length) {
                 console.error("Invalid question index for marking as known");
                 return;
             }
@@ -800,12 +1015,10 @@
                 return;
             }
             
-            // If already marked as review, remove that mark
             if (state.reviewQuestions[currentId]) {
                 delete state.reviewQuestions[currentId];
             }
             
-            // Toggle known status
             if (state.knownQuestions[currentId]) {
                 delete state.knownQuestions[currentId];
                 showNotification("Soru bilinmiyor olarak işaretlendi.");
@@ -813,15 +1026,11 @@
                 state.knownQuestions[currentId] = true;
                 showNotification("Soru biliniyor olarak işaretlendi! 🎉");
                 createConfetti(10);
-                
-                // Check if we reached a milestone
                 const knownTotal = Object.keys(state.knownQuestions).length;
                 if (knownTotal % 10 === 0) {
                     setTimeout(() => {
                         showNotification(`Tebrikler! ${knownTotal} soruyu biliyorsun! 🥳`, 3000);
                         createConfetti(30);
-                        
-                        // Pet celebration
                         if (window.VirtualPet) {
                             window.VirtualPet.celebrate();
                         }
@@ -831,17 +1040,14 @@
             
             updateUI();
             
-            // Automatically move to next question if this isn't the last one
             if (state.currentIndex < state.questionsOrder.length - 1) {
                 setTimeout(nextQuestion, 800);
             }
         }
 
-        // Mark current question for review
         function markForReview() {
             const currentQuestionIndex = state.questionsOrder[state.currentIndex];
-            if (currentQuestionIndex === undefined || currentQuestionIndex < 0 || 
-                currentQuestionIndex >= questionsData.length) {
+            if (currentQuestionIndex === undefined || currentQuestionIndex < 0 || currentQuestionIndex >= questionsData.length) {
                 console.error("Invalid question index for marking for review");
                 return;
             }
@@ -852,12 +1058,10 @@
                 return;
             }
             
-            // If already marked as known, remove that mark
             if (state.knownQuestions[currentId]) {
                 delete state.knownQuestions[currentId];
             }
             
-            // Toggle review status
             if (state.reviewQuestions[currentId]) {
                 delete state.reviewQuestions[currentId];
                 showNotification("Soru tekrar listesinden çıkarıldı.");
@@ -868,13 +1072,11 @@
             
             updateUI();
             
-            // Automatically move to next question if this isn't the last one
             if (state.currentIndex < state.questionsOrder.length - 1) {
                 setTimeout(nextQuestion, 800);
             }
         }
 
-        // Shuffle the questions
         function shuffleQuestions() {
             if (state.questionsOrder.length <= 1) {
                 showNotification("Karıştırmak için en az 2 soru gerekiyor.");
@@ -887,7 +1089,6 @@
             updateUI();
         }
 
-        // Reset progress
         function resetProgress() {
             if (confirm("Tüm ilerlemeniz sıfırlanacak. Emin misiniz?")) {
                 state.knownQuestions = {};
@@ -895,11 +1096,11 @@
                 state.bookmarkedQuestions = {};
                 state.currentIndex = 0;
                 state.activeFilter = 'all';
+                state.viewMode = 'card';
                 
-                // Reset questionsOrder to include all questions
-                state.questionsOrder = Array.from({ length: questionsData.length }, (_, i) => i);
+                state.originalQuestionsOrder = Array.from({ length: questionsData.length }, (_, i) => i);
+                state.questionsOrder = [...state.originalQuestionsOrder];
                 
-                // Reset filter tabs
                 filterAll.classList.add('active');
                 filterBookmarked.classList.remove('active');
                 filterKnown.classList.remove('active');
@@ -907,7 +1108,6 @@
                 
                 showNotification("İlerleme sıfırlandı.");
                 
-                // Reset pet
                 if (window.VirtualPet) {
                     window.VirtualPet.reset();
                 }
@@ -916,22 +1116,21 @@
             }
         }
 
-        // Show notification message
+        function resetFilter() {
+            applyFilter('all');
+        }
+
         function showNotification(message, duration = 2000) {
             if (!message) return;
-            
             notificationText.textContent = message;
             notification.classList.add('show');
-            
             setTimeout(() => {
                 notification.classList.remove('show');
             }, duration);
         }
 
-        // Create confetti effect
         function createConfetti(count = 20) {
             const colors = ['#FF69B4', '#FFB6C1', '#FFC0CB', '#FF1493', '#FFA07A'];
-            
             for (let i = 0; i < count; i++) {
                 const confetti = document.createElement('div');
                 confetti.className = 'confetti';
@@ -940,32 +1139,25 @@
                 confetti.style.animationDuration = (Math.random() * 3 + 2) + 's';
                 confetti.style.opacity = Math.random() + 0.5;
                 document.body.appendChild(confetti);
-                
-                // Remove confetti after animation completes
                 setTimeout(() => {
                     confetti.remove();
                 }, 5000);
             }
         }
 
-        // Show a random personal message
         function showRandomMessage() {
             if (personalMessages.length > 0) {
                 const message = personalMessages[Math.floor(Math.random() * personalMessages.length)];
                 showNotification(message, 4000);
-                
-                // Schedule next message between 30s and 2min
                 const nextTime = Math.random() * 90000 + 30000;
                 setTimeout(showRandomMessage, nextTime);
             }
         }
 
-        // Helper function to shuffle an array
         function shuffleArray(array) {
             if (!Array.isArray(array) || array.length === 0) {
                 return array;
             }
-            
             for (let i = array.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
                 [array[i], array[j]] = [array[j], array[i]];
@@ -973,7 +1165,6 @@
             return array;
         }
 
-        // Helper function to disable all controls
         function disableControls(disabled) {
             prevBtn.disabled = disabled;
             nextBtn.disabled = disabled;
@@ -1007,38 +1198,36 @@
         shuffleBtnMobile.addEventListener('click', shuffleQuestions);
         resetBtn.addEventListener('click', resetProgress);
         resetBtnMobile.addEventListener('click', resetProgress);
+        resetFilterBtn.addEventListener('click', resetFilter);
         
-        // Filter tab events
         filterAll.addEventListener('click', () => applyFilter('all'));
         filterBookmarked.addEventListener('click', () => applyFilter('bookmarked'));
         filterKnown.addEventListener('click', () => applyFilter('known'));
         filterReview.addEventListener('click', () => applyFilter('review'));
 
-        // Keyboard shortcuts
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowRight') nextQuestion();
-            else if (e.key === 'ArrowLeft') previousQuestion();
-            else if (e.key === ' ' || e.key === 'Enter') flipCard();
-            else if (e.key === 'k') markAsKnown();
-            else if (e.key === 'r') markForReview();
-            else if (e.key === 'b') toggleBookmark();
+            if (state.viewMode === 'card') {
+                if (e.key === 'ArrowRight') nextQuestion();
+                else if (e.key === 'ArrowLeft') previousQuestion();
+                else if (e.key === ' ' || e.key === 'Enter') flipCard();
+                else if (e.key === 'k') markAsKnown();
+                else if (e.key === 'r') markForReview();
+                else if (e.key === 'b') toggleBookmark();
+            }
         });
 
-        // Pet container click event
         petContainer.addEventListener('click', () => {
             if (window.VirtualPet) {
                 window.VirtualPet.interact();
             }
         });
 
-        // Handle window errors
         window.onerror = function(message, source, lineno, colno, error) {
             console.error("Error caught:", message, "at", source, ":", lineno, ":", colno);
             showNotification("Bir hata oluştu: " + message, 5000);
-            return true; // Prevents default error handling
+            return true;
         };
 
-        // Start loading questions
         loadQuestions();
     </script>
 </body>
