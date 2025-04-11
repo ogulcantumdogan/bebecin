@@ -150,6 +150,64 @@
             right: -5px;
         }
 
+        /* Bookmark button styles */
+        .bookmark-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 10;
+            transition: all 0.3s;
+        }
+        
+        .bookmark-btn svg {
+            width: 24px;
+            height: 24px;
+            fill: transparent;
+            stroke: #fff;
+            stroke-width: 2;
+            transition: all 0.3s;
+        }
+        
+        .bookmark-btn.active svg {
+            fill: #FFD700;
+            stroke: #FFD700;
+        }
+
+        /* Filter tabs */
+        .filter-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        
+        .filter-tab {
+            padding: 6px 12px;
+            border-radius: 16px;
+            font-size: 14px;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        
+        .filter-tab.active {
+            background-color: #FF69B4;
+            color: white;
+        }
+
+        /* Pet container */
+        .pet-container {
+            width: 120px;
+            height: 120px;
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 100;
+            transition: all 0.3s;
+        }
+        
+        .pet-container:hover {
+            transform: scale(1.2);
+        }
+
         /* Mobile-specific styles */
         @media (max-width: 640px) {
             .mobile-nav-grid {
@@ -161,6 +219,13 @@
             .mobile-nav-grid button {
                 width: 100%;
             }
+            
+            .pet-container {
+                width: 80px;
+                height: 80px;
+                bottom: 10px;
+                right: 10px;
+            }
         }
     </style>
 </head>
@@ -168,13 +233,23 @@
     <!-- Main container -->
     <div class="container mx-auto px-4 py-6 max-w-4xl">
         <!-- Header -->
-        <header class="mb-6 text-center animate__animated animate__fadeIn">
+        <header class="mb-4 text-center animate__animated animate__fadeIn">
             <h1 class="text-4xl font-bold text-primary mb-1">DUS Hazırlık Kartları - Bebecin Edition</h1>
             <p class="text-gray-600 italic">Seni seviyorum, başaracağına inanıyorum ♥</p>
         </header>
         
+        <!-- Filter Tabs -->
+        <div class="filter-container bg-white rounded-lg shadow-md p-3 mb-4 animate__animated animate__fadeIn">
+            <div class="filter-tabs">
+                <div id="filter-all" class="filter-tab active">Tümü</div>
+                <div id="filter-bookmarked" class="filter-tab">Yer İmleri</div>
+                <div id="filter-known" class="filter-tab">Bilinenler</div>
+                <div id="filter-review" class="filter-tab">Tekrar Edilecekler</div>
+            </div>
+        </div>
+        
         <!-- Statistics Display -->
-        <div class="stats-container mb-5 bg-white rounded-lg shadow-md p-3 animate__animated animate__fadeIn animate__delay-1s">
+        <div class="stats-container mb-4 bg-white rounded-lg shadow-md p-3 animate__animated animate__fadeIn animate__delay-1s">
             <div class="flex flex-wrap justify-around">
                 <div class="stat-item text-center p-2">
                     <p class="text-sm text-gray-500">İlerleme</p>
@@ -194,6 +269,11 @@
                 <div class="stat-item text-center p-2">
                     <p class="text-sm text-gray-500">Tekrar Et</p>
                     <p id="review-count" class="text-xl font-bold text-red-500">0</p>
+                </div>
+                
+                <div class="stat-item text-center p-2">
+                    <p class="text-sm text-gray-500">Yer İmleri</p>
+                    <p id="bookmark-count" class="text-xl font-bold text-yellow-500">0</p>
                 </div>
             </div>
         </div>
@@ -238,8 +318,13 @@
         </div>
         
         <!-- Card Container -->
-        <div class="card-container mb-4 h-80 animate__animated animate__zoomIn">
+        <div class="card-container mb-4 h-80 animate__animated animate__zoomIn relative">
             <div id="card" class="card w-full h-full shadow-xl">
+                <button id="bookmark-btn" class="bookmark-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                        <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+                    </svg>
+                </button>
                 <div class="card-inner h-full">
                     <div class="card-front flex flex-col justify-center items-center">
                         <h2 class="text-2xl font-bold mb-4">Soru</h2>
@@ -290,6 +375,9 @@
             </div>
         </div>
     </div>
+    
+    <!-- Pet container -->
+    <div id="pet-container" class="pet-container animate__animated animate__bounceIn animate__delay-3s"></div>
 
     <!-- Loading overlay -->
     <div id="loading-overlay" class="fixed inset-0 bg-white bg-opacity-80 flex justify-center items-center z-50">
@@ -299,6 +387,9 @@
         </div>
     </div>
 
+    <!-- Import virtual pet script -->
+    <script src="virtual-pet.js"></script>
+    
     <script>
         // Load questions from external file or fallback to embedded questions
         let questionsData = [];
@@ -347,8 +438,10 @@
             currentIndex: 0,
             knownQuestions: {},
             reviewQuestions: {},
+            bookmarkedQuestions: {},
             questionsOrder: [],
-            isCardFlipped: false
+            isCardFlipped: false,
+            activeFilter: 'all' // Options: 'all', 'bookmarked', 'known', 'review'
         };
 
         // DOM Elements
@@ -360,6 +453,7 @@
         const progressText = document.getElementById('progress-text');
         const knownCount = document.getElementById('known-count');
         const reviewCount = document.getElementById('review-count');
+        const bookmarkCount = document.getElementById('bookmark-count');
         const prevBtn = document.getElementById('prev-btn');
         const nextBtn = document.getElementById('next-btn');
         const prevBtnMobile = document.getElementById('prev-btn-mobile');
@@ -371,9 +465,17 @@
         const resetBtnMobile = document.getElementById('reset-btn-mobile');
         const knownBtn = document.getElementById('known-btn');
         const reviewBtn = document.getElementById('review-btn');
+        const bookmarkBtn = document.getElementById('bookmark-btn');
         const notification = document.getElementById('notification');
         const notificationText = document.getElementById('notification-text');
         const loadingOverlay = document.getElementById('loading-overlay');
+        const petContainer = document.getElementById('pet-container');
+        
+        // Filter tabs
+        const filterAll = document.getElementById('filter-all');
+        const filterBookmarked = document.getElementById('filter-bookmarked');
+        const filterKnown = document.getElementById('filter-known');
+        const filterReview = document.getElementById('filter-review');
 
         // Helper function to get question ID consistently
         function getQuestionId(questionIndex) {
@@ -396,7 +498,19 @@
             // Ensure currentIndex is valid
             validateCurrentIndex();
             
+            // Apply active filter
+            applyFilter(state.activeFilter);
+            
+            // Update UI
             updateUI();
+            
+            // Initialize pet
+            if (window.VirtualPet) {
+                const knownCount = Object.keys(state.knownQuestions).length;
+                const progress = questionsData.length > 0 ? (knownCount / questionsData.length) * 100 : 0;
+                window.VirtualPet.init(petContainer, progress);
+            }
+            
             setTimeout(() => {
                 loadingOverlay.classList.add('animate__animated', 'animate__fadeOut');
                 setTimeout(() => {
@@ -437,8 +551,10 @@
                     currentIndex: 0,
                     knownQuestions: {},
                     reviewQuestions: {},
+                    bookmarkedQuestions: {},
                     questionsOrder: [],
-                    isCardFlipped: false
+                    isCardFlipped: false,
+                    activeFilter: 'all'
                 };
             }
         }
@@ -450,12 +566,71 @@
                     currentIndex: state.currentIndex,
                     knownQuestions: state.knownQuestions,
                     reviewQuestions: state.reviewQuestions,
-                    questionsOrder: state.questionsOrder
+                    bookmarkedQuestions: state.bookmarkedQuestions,
+                    questionsOrder: state.questionsOrder,
+                    activeFilter: state.activeFilter
                 }));
             } catch (e) {
                 console.error('Failed to save state:', e);
                 showNotification("Hata: İlerleme kaydedilemedi.", 3000);
             }
+        }
+
+        // Apply the filter
+        function applyFilter(filter) {
+            state.activeFilter = filter;
+            
+            // Update active tab UI
+            filterAll.classList.toggle('active', filter === 'all');
+            filterBookmarked.classList.toggle('active', filter === 'bookmarked');
+            filterKnown.classList.toggle('active', filter === 'known');
+            filterReview.classList.toggle('active', filter === 'review');
+            
+            // Create a filtered order of questions
+            let filteredOrder = [];
+            
+            switch (filter) {
+                case 'bookmarked':
+                    for (let i = 0; i < questionsData.length; i++) {
+                        const questionId = getQuestionId(i);
+                        if (questionId && state.bookmarkedQuestions[questionId]) {
+                            filteredOrder.push(i);
+                        }
+                    }
+                    break;
+                case 'known':
+                    for (let i = 0; i < questionsData.length; i++) {
+                        const questionId = getQuestionId(i);
+                        if (questionId && state.knownQuestions[questionId]) {
+                            filteredOrder.push(i);
+                        }
+                    }
+                    break;
+                case 'review':
+                    for (let i = 0; i < questionsData.length; i++) {
+                        const questionId = getQuestionId(i);
+                        if (questionId && state.reviewQuestions[questionId]) {
+                            filteredOrder.push(i);
+                        }
+                    }
+                    break;
+                default: // 'all'
+                    filteredOrder = [...state.questionsOrder];
+                    break;
+            }
+            
+            // If no questions match the filter, show a message and keep the current view
+            if (filteredOrder.length === 0 && filter !== 'all') {
+                showNotification(`Bu filtre için hiç soru bulunamadı.`, 3000);
+                return;
+            }
+            
+            // Update the order and reset current index
+            state.questionsOrder = filteredOrder;
+            state.currentIndex = 0;
+            
+            saveState();
+            updateUI();
         }
 
         // Update UI elements based on current state
@@ -494,6 +669,7 @@
             // Update progress indicators
             const knownTotal = Object.keys(state.knownQuestions).length;
             const reviewTotal = Object.keys(state.reviewQuestions).length;
+            const bookmarkTotal = Object.keys(state.bookmarkedQuestions).length;
             const progress = questionsData.length > 0 ? Math.round((knownTotal / questionsData.length) * 100) : 0;
             
             // Improve progress bar display for small percentages
@@ -505,13 +681,14 @@
                 progressDot.classList.add('hidden');
             }
             
-            progressText.textContent = `${state.currentIndex + 1}/${questionsData.length} soru`;
+            progressText.textContent = `${state.currentIndex + 1}/${state.questionsOrder.length} soru`;
             knownCount.textContent = knownTotal;
             reviewCount.textContent = reviewTotal;
+            bookmarkCount.textContent = bookmarkTotal;
             
             // Update button states
             const isFirstQuestion = state.currentIndex === 0;
-            const isLastQuestion = state.currentIndex === questionsData.length - 1;
+            const isLastQuestion = state.currentIndex === state.questionsOrder.length - 1;
             
             prevBtn.disabled = isFirstQuestion;
             prevBtnMobile.disabled = isFirstQuestion;
@@ -522,11 +699,25 @@
             const currentId = getQuestionId(currentQuestionIndex);
             knownBtn.classList.remove('ring-4', 'ring-green-200');
             reviewBtn.classList.remove('ring-4', 'ring-red-200');
+            bookmarkBtn.classList.remove('active');
             
-            if (currentId && state.knownQuestions[currentId]) {
-                knownBtn.classList.add('ring-4', 'ring-green-200');
-            } else if (currentId && state.reviewQuestions[currentId]) {
-                reviewBtn.classList.add('ring-4', 'ring-red-200');
+            if (currentId) {
+                if (state.knownQuestions[currentId]) {
+                    knownBtn.classList.add('ring-4', 'ring-green-200');
+                }
+                
+                if (state.reviewQuestions[currentId]) {
+                    reviewBtn.classList.add('ring-4', 'ring-red-200');
+                }
+                
+                if (state.bookmarkedQuestions[currentId]) {
+                    bookmarkBtn.classList.add('active');
+                }
+            }
+            
+            // Update pet status
+            if (window.VirtualPet) {
+                window.VirtualPet.updateProgress(progress);
             }
             
             try {
@@ -534,6 +725,36 @@
             } catch (e) {
                 console.error('Failed to save state:', e);
             }
+        }
+
+        // Toggle bookmark for current question
+        function toggleBookmark() {
+            const currentQuestionIndex = state.questionsOrder[state.currentIndex];
+            if (currentQuestionIndex === undefined || currentQuestionIndex < 0 || 
+                currentQuestionIndex >= questionsData.length) {
+                console.error("Invalid question index for bookmarking");
+                return;
+            }
+            
+            const currentId = getQuestionId(currentQuestionIndex);
+            if (!currentId) {
+                console.error("Cannot get valid ID for current question");
+                return;
+            }
+            
+            // Toggle bookmark status
+            if (state.bookmarkedQuestions[currentId]) {
+                delete state.bookmarkedQuestions[currentId];
+                showNotification("Soru yer imlerinden kaldırıldı.");
+                bookmarkBtn.classList.remove('active');
+            } else {
+                state.bookmarkedQuestions[currentId] = true;
+                showNotification("Soru yer imlerine eklendi.");
+                bookmarkBtn.classList.add('active');
+                createConfetti(5);
+            }
+            
+            updateUI();
         }
 
         // Flip the card to show answer
@@ -550,7 +771,7 @@
 
         // Move to the next question
         function nextQuestion() {
-            if (state.currentIndex < questionsData.length - 1) {
+            if (state.currentIndex < state.questionsOrder.length - 1) {
                 state.currentIndex++;
                 updateUI();
             }
@@ -599,6 +820,11 @@
                     setTimeout(() => {
                         showNotification(`Tebrikler! ${knownTotal} soruyu biliyorsun! 🥳`, 3000);
                         createConfetti(30);
+                        
+                        // Pet celebration
+                        if (window.VirtualPet) {
+                            window.VirtualPet.celebrate();
+                        }
                     }, 1000);
                 }
             }
@@ -606,7 +832,7 @@
             updateUI();
             
             // Automatically move to next question if this isn't the last one
-            if (state.currentIndex < questionsData.length - 1) {
+            if (state.currentIndex < state.questionsOrder.length - 1) {
                 setTimeout(nextQuestion, 800);
             }
         }
@@ -643,14 +869,14 @@
             updateUI();
             
             // Automatically move to next question if this isn't the last one
-            if (state.currentIndex < questionsData.length - 1) {
+            if (state.currentIndex < state.questionsOrder.length - 1) {
                 setTimeout(nextQuestion, 800);
             }
         }
 
         // Shuffle the questions
         function shuffleQuestions() {
-            if (questionsData.length <= 1) {
+            if (state.questionsOrder.length <= 1) {
                 showNotification("Karıştırmak için en az 2 soru gerekiyor.");
                 return;
             }
@@ -666,8 +892,26 @@
             if (confirm("Tüm ilerlemeniz sıfırlanacak. Emin misiniz?")) {
                 state.knownQuestions = {};
                 state.reviewQuestions = {};
+                state.bookmarkedQuestions = {};
                 state.currentIndex = 0;
+                state.activeFilter = 'all';
+                
+                // Reset questionsOrder to include all questions
+                state.questionsOrder = Array.from({ length: questionsData.length }, (_, i) => i);
+                
+                // Reset filter tabs
+                filterAll.classList.add('active');
+                filterBookmarked.classList.remove('active');
+                filterKnown.classList.remove('active');
+                filterReview.classList.remove('active');
+                
                 showNotification("İlerleme sıfırlandı.");
+                
+                // Reset pet
+                if (window.VirtualPet) {
+                    window.VirtualPet.reset();
+                }
+                
                 updateUI();
             }
         }
@@ -742,6 +986,12 @@
             resetBtnMobile.disabled = disabled;
             knownBtn.disabled = disabled;
             reviewBtn.disabled = disabled;
+            bookmarkBtn.disabled = disabled;
+            
+            filterAll.style.pointerEvents = disabled ? 'none' : 'auto';
+            filterBookmarked.style.pointerEvents = disabled ? 'none' : 'auto';
+            filterKnown.style.pointerEvents = disabled ? 'none' : 'auto';
+            filterReview.style.pointerEvents = disabled ? 'none' : 'auto';
         }
 
         // Event listeners
@@ -752,10 +1002,17 @@
         prevBtnMobile.addEventListener('click', previousQuestion);
         knownBtn.addEventListener('click', markAsKnown);
         reviewBtn.addEventListener('click', markForReview);
+        bookmarkBtn.addEventListener('click', toggleBookmark);
         shuffleBtn.addEventListener('click', shuffleQuestions);
         shuffleBtnMobile.addEventListener('click', shuffleQuestions);
         resetBtn.addEventListener('click', resetProgress);
         resetBtnMobile.addEventListener('click', resetProgress);
+        
+        // Filter tab events
+        filterAll.addEventListener('click', () => applyFilter('all'));
+        filterBookmarked.addEventListener('click', () => applyFilter('bookmarked'));
+        filterKnown.addEventListener('click', () => applyFilter('known'));
+        filterReview.addEventListener('click', () => applyFilter('review'));
 
         // Keyboard shortcuts
         document.addEventListener('keydown', (e) => {
@@ -764,6 +1021,14 @@
             else if (e.key === ' ' || e.key === 'Enter') flipCard();
             else if (e.key === 'k') markAsKnown();
             else if (e.key === 'r') markForReview();
+            else if (e.key === 'b') toggleBookmark();
+        });
+
+        // Pet container click event
+        petContainer.addEventListener('click', () => {
+            if (window.VirtualPet) {
+                window.VirtualPet.interact();
+            }
         });
 
         // Handle window errors
