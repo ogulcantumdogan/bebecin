@@ -865,7 +865,10 @@
                 const reviewBtnElement = document.createElement('button');
                 reviewBtnElement.className = `px-3 py-1 bg-red-400 text-white rounded-lg hover:bg-red-500 transition duration-300 text-sm ${state.reviewQuestions[questionId] ? 'ring-2 ring-red-200' : ''}`;
                 reviewBtnElement.textContent = 'Tekrar Et';
-                reviewBtnElement.addEventListener('click', () => toggleReviewInList(questionId, knownBtnElement, reviewBtnElement));
+                reviewBtnElement.addEventListener('click', (e) => {
+    e.stopPropagation();
+    toggleReviewInList(questionId, knownBtnElement, reviewBtnElement);
+});
                 
                 actionsElement.appendChild(knownBtnElement);
                 actionsElement.appendChild(reviewBtnElement);
