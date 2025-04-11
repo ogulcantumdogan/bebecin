@@ -1,5 +1,25 @@
 [
   {
+    "id":301,
+    "question":"Üre nefes testi gibi hızlıca hayatıma etki eden kimdi?",
+    "answer":"Sensin akıllı bıdığım 😘"
+  },
+  {
+    "id":302,
+    "question":"Hangi yapı gibi sen de kalbime tutunmayı başardın?",
+    "answer":"Fimbria gibi… 💛"
+  },
+  {
+    "id":303,
+    "question":"16S rRNA gibi asla değişmeyen ne var?",
+    "answer":"Sana olan sevgim.. Hiçbir mutasyon etkileyemez <3"
+  },
+  {
+    "id":4,
+    "question":"Hadi başlayalım :)) Flagellanın bakterideki görevi nedir?",
+    "answer":"Hareketi sağlar."
+  },
+  {
     "id":1,
     "question":"Gram pozitif bakterilerde lizozime duyarlılığı sağlayan yapı nedir?",
     "answer":"Kalın peptidoglikan tabaka."
@@ -13,11 +33,6 @@
     "id":3,
     "question":"Sitoplazmik membranın görevleri nelerdir?",
     "answer":"Enerji üretimi, madde geçişi, enzim ve toksin salgısı gibi birçok görevi vardır."
-  },
-  {
-    "id":4,
-    "question":"Flagellanın bakterideki görevi nedir?",
-    "answer":"Hareketi sağlar."
   },
   {
     "id":5,
@@ -1498,20 +1513,5 @@
     "id":300,
     "question":"Pnömokoklar optokine nasıl tepki verir?",
     "answer":"Duyarlıdır, üreme engellenir."
-  },
-  {
-    "id":301,
-    "question":"Üre nefes testi gibi hızlıca hayatıma etki eden kimdi?",
-    "answer":"Sensin akıllı bıdığım :*"
-  },
-  {
-    "id":302,
-    "question":"Hangi yapı gibi sen de kalbime tutunmayı başardın?",
-    "answer":"Fimbria gibi… 💛"
-  },
-  {
-    "id":303,
-    "question":"16S rRNA gibi asla değişmeyen ne var?",
-    "answer":"Sana olan sevgim.. Hiçbir mutasyon etkileyemez <3"
   }
 ]
